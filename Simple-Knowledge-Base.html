@@ -516,8 +516,8 @@ html[data-density="compact"] .article-row{padding:8px}
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
 <div class="command" id="commandBg" onclick="if(event.target===this)closeCommand()"><div class="command-box"><input class="command-input" id="commandInput" placeholder="搜索" oninput="renderCommands(true)"><div class="commands" id="commands"></div></div></div>
 <div class="toast" id="toast"></div>
-<script type="application/json" id="kb-place">{"id":"inst_muy0h21l_ragh1l","href":"file:///C:/Users/13031/Desktop/模版/模板.html","folder":"模版"}</script>
-
+<script type="application/json" id="kb-place">{"id":"inst_muy8dmft_skl5v2","href":"file:///C:/Users/13031/Desktop/JadeRiver知识库/JadeRiver知识库.html","folder":"JadeRiver知识库"}</script>
+<script src="存档/现有版本/当前.js"></script>
 <script>
 const pristine=document.documentElement.cloneNode(true);
 const FILE_PREFIX="ARKKNOWLEDGE_FILE:";
@@ -918,56 +918,20 @@ function emptyLibrary(){
   return data;
 }
 function load(){
-  const path=storageSlot();
-  const map=readPathMap();
-  const embedded=readEmbedded();
-  const origin=embedded?embedded.id:"";
-  let id=map[path]||"";
-  let stored=id?parseEnvelope(readKey(FILE_PREFIX+id)):null;
-  if(stored&&stored.place&&stored.place!==pageIdentity()){
-    id="";
-    stored=null;
-  }
-  let replaced=null,oldId="";
-  if(embedded&&stored&&stored.state&&stored.origin!==origin){
-    replaced=stored.state;
-    oldId=id;
-    id="";
-    stored=null;
-  }
-  let fresh=false;
-  if(id&&stored&&stored.external&&!stored.state){
-    fileMeta.fileId=id;
-    fileMeta.revision=stored.revision||0;
-    fileMeta.origin=stored.origin||origin;
-    state=emptyLibrary();
-    kbExternal=true;
-  }else if(id&&stored&&stored.state){
-    fileMeta.fileId=id;
-    fileMeta.revision=stored.revision||0;
-    fileMeta.origin=stored.origin;
-    state=stored.state;
-  }else if(id&&historyOf(id).length){
-    fileMeta.fileId=id;
-    fileMeta.revision=0;
-    fileMeta.origin=origin;
-    state=JSON.parse(JSON.stringify(historyOf(id)[0].snapshot));
-    fresh=true;
-  }else{
-    fileMeta.fileId=uid("file");
-    fileMeta.revision=0;
-    fileMeta.origin=origin;
-    if(embedded) state=JSON.parse(JSON.stringify(embedded.state));
-    else state=emptyLibrary();
-    fresh=true;
-    pendingCarry=[];
-  }
-  if(!state||typeof state!=="object"||Array.isArray(state)) state=defaults();
+  fileMeta.fileId=uid("file");
+  fileMeta.revision=0;
+  fileMeta.origin="";
+  const side=asLibrary(window.__ARK_CURRENT);
+  sideLoaded=!!side;
+  state=side?JSON.parse(JSON.stringify(side)):emptyLibrary();
+  historyItems=Array.isArray(state.libraryHistory)?state.libraryHistory:[];
+  pendingCarry=[];
   repaired=false;
   normalize();
   applyConfig();
   purgeExpired(false);
   archiveMigrated=false;
+  diskReady=sideLoaded;
   archiveBootPromise=bootArchive();
 }
 
@@ -2036,6 +2000,7 @@ function markDraftDirty(){
   const count=document.getElementById("nodeCount");
   if(count) count.textContent=documentDraft.content.length+" 字";
   clearTimeout(draftTimer);
+  primeWrite();
   draftTimer=setTimeout(()=>saveDocumentNode(true),700);
 }
 async function saveDocumentNode(silent){
@@ -2902,6 +2867,8 @@ let archiveRoot=null;
 let knownHandle=null;
 let boundHref="";
 let archiveMigrated=false;
+let diskReady=false;
+let sideLoaded=false;
 let archiveBootPromise=null;
 let saveQueued=false;
 let kbExternal=false;
@@ -3003,16 +2970,16 @@ function snapshotForFile(source){
   const copy=JSON.parse(JSON.stringify(source||{}));
   delete copy.exportedAt;
   delete copy.schema;
-  delete copy.libraryHistory;
   delete copy.kind;
+  if(historyItems.length) copy.libraryHistory=JSON.parse(JSON.stringify(historyItems));
   if(Array.isArray(copy.versions)) copy.versions=copy.versions.map(v=>{
     const row={id:v.id,articleId:v.articleId||"",time:v.time||"",title:v.title||(v.snapshot&&v.snapshot.title)||"",file:v.file||""};
-    if(!row.file&&v.snapshot) row.snapshot=v.snapshot;
+    if(v.snapshot) row.snapshot=v.snapshot;
     return row;
   });
   if(Array.isArray(copy.trash)) copy.trash=copy.trash.map(t=>{
     const row={id:t.id,type:t.type,name:t.name,deletedAt:t.deletedAt,file:t.file||""};
-    if(!row.file&&t.data) row.data=t.data;
+    if(t.data) row.data=t.data;
     return row;
   });
   return copy;
@@ -3390,44 +3357,100 @@ function writeLocal(key,text){
 function freeLocalBulk(){
   try{localStorage.removeItem(historyStorageKey())}catch(e){}
 }
+function dropBrowserCopies(){
+  try{
+    const keys=[];
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(key&&key.indexOf("ARKKNOWLEDGE")===0) keys.push(key);
+    }
+    keys.forEach(key=>{try{localStorage.removeItem(key)}catch(e){}});
+  }catch(e){}
+}
+function latestStamp(lib){
+  let stamp="";
+  const take=value=>{const text=String(value||"");if(text>stamp) stamp=text};
+  const articles=lib&&Array.isArray(lib.articles)?lib.articles:[];
+  articles.forEach(article=>take(article&&article.updatedAt));
+  const logs=lib&&Array.isArray(lib.logs)?lib.logs:[];
+  logs.forEach(item=>take(item&&item.time));
+  return stamp;
+}
+function browserLibrary(){
+  const id=readPathMap()[storageSlot()]||"";
+  if(!id) return null;
+  const stored=parseEnvelope(readKey(FILE_PREFIX+id));
+  if(!stored||!stored.state) return null;
+  if(stored.place&&stored.place!==pageIdentity()) return null;
+  return stored.state;
+}
 function persistNow(){
-  const path=storageSlot();
-  const map=readPathMap();
-  if(map[path]!==fileMeta.fileId){
-    map[path]=fileMeta.fileId;
-    if(!writeLocal(PATH_MAP_KEY,JSON.stringify(map))) return false;
-  }
-  fileMeta.revision=(fileMeta.revision||0)+1;
-  const payload={fileId:fileMeta.fileId,revision:fileMeta.revision,origin:fileMeta.origin,place:pageIdentity(),state:snapshotForFile(state)};
-  if(!writeLocal(FILE_PREFIX+fileMeta.fileId,JSON.stringify(payload))){
-    fileMeta.revision=Math.max(0,fileMeta.revision-1);
-    return false;
-  }
   refreshChrome();
+  return !!(archiveRoot&&diskReady);
+}
+let writePrimed=false;
+function noteArchiveWrite(ok){
+  const el=document.getElementById("documentSaveState");
+  if(!el) return;
+  if(ok){
+    if(el.textContent==="待保存"||el.textContent==="没写进存档") el.textContent="已保存";
+    return;
+  }
+  if(el.textContent==="已自动保存"||el.textContent==="已保存"||el.textContent==="待保存") el.textContent="没写进存档";
+}
+function primeWrite(){
+  if(writePrimed||(archiveRoot&&samePage(boundHref))) return;
+  if(!knownHandle||typeof knownHandle.requestPermission!=="function") return;
+  if(!(navigator.userActivation&&navigator.userActivation.isActive)) return;
+  writePrimed=true;
+  let permit=null;
+  try{permit=knownHandle.requestPermission({mode:"readwrite"})}catch(e){writePrimed=false;return}
+  permit.then(perm=>{
+    if(perm!=="granted"){writePrimed=false;return}
+    enqueue(async()=>{
+      if(await materializeArchive(false)) await flushArchive();
+    });
+  }).catch(()=>{writePrimed=false});
+}
+async function flushArchive(){
+  if(!(await materializeArchive(false))){noteArchiveWrite(false);return false}
+  if(!diskReady){noteArchiveWrite(false);toast("旁边的存档还没读好，这次没有写入。");return false}
+  try{await parkInline()}catch(e){}
+  const wrote=await writeCurrent();
+  if(!wrote){noteArchiveWrite(false);toast("没写进旁边的存档。");return false}
+  try{await scanAll()}catch(e){}
+  renderAnalytics();
+  renderTrash();
+  renderExportFiles();
+  dropBrowserCopies();
+  noteArchiveWrite(true);
   return true;
 }
 function save(){
   if(!archiveMigrated){saveQueued=true;refreshChrome();return true}
-  const ok=persistNow();
+  refreshChrome();
+  primeWrite();
+  let permit=null;
+  if(!(archiveRoot&&samePage(boundHref))&&knownHandle&&typeof knownHandle.requestPermission==="function"&&navigator.userActivation&&navigator.userActivation.isActive){
+    try{permit=knownHandle.requestPermission({mode:"readwrite"})}catch(e){permit=null}
+  }
   enqueue(async()=>{
-    const attached=await materializeArchive(false);
-    if(attached){
-      try{await parkInline()}catch(e){}
-      await writeCurrent();
-      try{await scanAll()}catch(e){}
-      renderAnalytics();
-      renderTrash();
-      renderExportFiles();
-    }else if(!ok) toast("浏览器空间满了。请在设置里选择本页所在的文件夹，存档会建在旁边。");
+    if(permit){
+      try{if((await permit)==="granted") await materializeArchive(false)}catch(e){}
+    }
+    await flushArchive();
   });
-  return ok||!!archiveRoot;
+  return true;
 }
 async function writeCurrent(){
   if(!(await materializeArchive(false))) return false;
   const bind=await readBind();
   if(!bind||!samePage(bind.href)) return false;
   try{
-    await writeJson(DIR_CURRENT,CURRENT_FILE,snapshotForFile(state));
+    const snap=snapshotForFile(state);
+    await writeJson(DIR_CURRENT,CURRENT_FILE,snap);
+    await writeText(DIR_CURRENT,"当前.js","window.__ARK_CURRENT="+JSON.stringify(snap)+";\n");
+    window.__ARK_CURRENT=snap;
     return true;
   }catch(e){return false}
 }
@@ -3440,13 +3463,12 @@ async function moveCurrentToHistory(){
 async function parkInline(){
   if(!archiveRoot) return;
   for(const version of (state.versions||[]).slice()){
-    if(!version||!version.snapshot) continue;
+    if(!version||!version.snapshot||(version.file&&/\.json$/i.test(version.file))) continue;
     const title=version.title||version.snapshot.title||"未命名";
-    const name=version.file&&/\.json$/i.test(version.file)?version.file:historyFileName("article",title);
+    const name=historyFileName("article",title);
     await writeJson(DIR_HISTORY,name,{kind:"article",id:version.id||uid("ver"),articleId:version.articleId||"",time:version.time||now(),title:title,snapshot:version.snapshot});
     version.file=name;
     version.title=title;
-    delete version.snapshot;
   }
   for(const item of pendingCarry.slice()){
     const lib=item&&asLibrary(item.snapshot||item);
@@ -3460,7 +3482,6 @@ async function parkInline(){
     const name=trashFileName(item.type,item.name||"未命名");
     await writeJson(DIR_TRASH,name,{kind:"trash",id:item.id,type:item.type,name:item.name,deletedAt:item.deletedAt||now(),data:item.data});
     item.file=name;
-    item.data={id:(item.data&&item.data.id)||""};
   }
 }
 async function parkInsideLibrary(lib){
@@ -3517,10 +3538,10 @@ async function scanAll(){
     const kind=classifyHistory(doc);
     if(!kind) continue;
     if(kind==="library"){
-      libs.push({id:doc.id||name,file:name,time:doc.time||"",title:doc.title||"整库",kind:"library",count:lib&&Array.isArray(lib.articles)?lib.articles.length:0,titles:""});
+      libs.push({id:doc.id||name,file:name,time:doc.time||"",title:doc.title||"整库",kind:"library",count:lib&&Array.isArray(lib.articles)?lib.articles.length:0,titles:"",snapshot:lib||doc.snapshot||null});
     }else{
       const snap=doc.snapshot||{};
-      versions.push({id:doc.id||name,file:name,time:doc.time||"",title:doc.title||snap.title||sampleLabel(name),articleId:doc.articleId||snap.id||"",kind:"article"});
+      versions.push({id:doc.id||name,file:name,time:doc.time||"",title:doc.title||snap.title||sampleLabel(name),articleId:doc.articleId||snap.id||"",kind:"article",snapshot:doc.snapshot||null});
     }
   }
   versions.sort((a,b)=>String(b.time).localeCompare(String(a.time)));
@@ -3532,11 +3553,25 @@ async function scanAll(){
     const doc=await readJson(DIR_TRASH,name);
     if(!doc||typeof doc!=="object") continue;
     const type=doc.kind==="trash"?(doc.type||"version"):(doc.kind==="library"?"library":"version");
-    trash.push({id:doc.id||name,file:name,type:type,name:doc.name||doc.title||sampleLabel(name),deletedAt:doc.deletedAt||doc.time||now(),bucket:DIR_TRASH,data:{id:doc.id||"",file:name}});
+    const payload=doc.kind==="trash"?doc.data:doc;
+    trash.push({id:doc.id||name,file:name,type:type,name:doc.name||doc.title||sampleLabel(name),deletedAt:doc.deletedAt||doc.time||now(),bucket:DIR_TRASH,data:payload||{id:doc.id||"",file:name}});
   }
   trash.sort((a,b)=>String(b.deletedAt).localeCompare(String(a.deletedAt)));
   state.trash=trash;
+  state.libraryHistory=libs;
   sampleNames=await listJson(DIR_SAMPLE);
+}
+async function readCurrentSnapshot(){
+  let text="";
+  try{text=await readText(DIR_CURRENT,CURRENT_FILE)}
+  catch(e){
+    if(e&&(e.name==="NotFoundError"||e.name==="NotFound")) return null;
+    return "bad";
+  }
+  try{
+    const lib=asLibrary(JSON.parse(text));
+    return lib||"bad";
+  }catch(e){return "bad"}
 }
 async function reloadFromDisk(){
   if(!(await materializeArchive(false))) return false;
@@ -3548,24 +3583,42 @@ async function reloadFromDisk(){
     return false;
   }
   await ensureDirs();
-  await parkInline();
-  const cur=await readJson(DIR_CURRENT,CURRENT_FILE);
-  const lib=cur&&asLibrary(cur);
-  if(lib){
-    state=JSON.parse(JSON.stringify(lib));
+  const cur=await readCurrentSnapshot();
+  const browser=browserLibrary();
+  if(cur==="bad"&&!browser){
+    toast("现有版本的 JSON 读不出来，没有改写。");
+    renderArchiveStatus();
+    return false;
+  }
+  let chosen=cur&&cur!=="bad"?cur:null;
+  let fromBrowser=false;
+  if(browser&&(!chosen||latestStamp(browser)>latestStamp(chosen))){
+    chosen=browser;
+    fromBrowser=true;
+  }
+  if(chosen){
+    state=JSON.parse(JSON.stringify(chosen));
     repaired=false;
     normalize();
     applyConfig();
-  }else await writeCurrent();
+  }
+  diskReady=true;
+  await parkInline();
+  let storedOnDisk=!!(chosen&&!fromBrowser);
+  if(fromBrowser){
+    storedOnDisk=await writeCurrent();
+    if(!storedOnDisk) toast("浏览器里较新的内容还没写进旁边的存档。");
+  }
+  if(storedOnDisk) dropBrowserCopies();
   await purgeTrashFiles();
   await scanAll();
   await ensureDefaultSample();
   archiveMigrated=true;
-  persistNow();
+  refreshChrome();
   renderAll();
   renderArchiveStatus();
   renderExportFiles();
-  return true;
+  return storedOnDisk||!!chosen;
 }
 async function bootJob(){
   try{await materializeArchive(false)}catch(e){clearArchive()}
@@ -3578,8 +3631,9 @@ async function bootJob(){
   archiveMigrated=true;
   if(saveQueued){
     saveQueued=false;
-    if(archiveRoot){try{await writeCurrent()}catch(e){}}
-    else persistNow();
+    if(archiveRoot&&diskReady){
+      try{await parkInline();await writeCurrent()}catch(e){}
+    }
   }
   renderArchiveStatus();
   renderExportFiles();
@@ -3625,7 +3679,6 @@ function pushVersion(article){
     try{
       await writeJson(DIR_HISTORY,file,{kind:"article",id:id,articleId:article.id,time:item.time,title:title,snapshot:snap});
       item.file=file;
-      delete item.snapshot;
     }catch(e){
       item.file="";
       item.snapshot=snap;
@@ -3668,12 +3721,14 @@ async function restoreVersion(verId){
   toast("已恢复到旧版本");
 }
 async function moveHistoryToTrash(item,type){
-  if(!item||!item.file) return false;
-  const doc=await readJson(DIR_HISTORY,item.file);
+  if(!item) return false;
+  let doc=null;
+  if(item.file&&archiveRoot) doc=await readJson(DIR_HISTORY,item.file);
+  if(!doc&&item.snapshot) doc={kind:item.kind||(type==="library"?"library":"article"),id:item.id,title:item.title||"",time:item.time||"",articleId:item.articleId||"",snapshot:item.snapshot};
   if(!doc) return false;
   const name=trashFileName(type,item.title||item.name||"未命名");
   await writeJson(DIR_TRASH,name,{kind:"trash",id:item.id,type:type,name:(item.title||item.name||"未命名")+" · "+fmtFull(item.time),deletedAt:now(),data:doc});
-  await removeFile(DIR_HISTORY,item.file);
+  if(item.file) await removeFile(DIR_HISTORY,item.file);
   return true;
 }
 async function deleteVersion(id){
@@ -3744,10 +3799,12 @@ async function adoptLibrary(lib){
   state=data;
   repaired=false;
   normalize();
-  const wrote=archiveRoot?await writeCurrent():true;
-  if(archiveRoot&&!wrote){toast("没写进现有版本");return false}
-  if(archiveRoot) await scanAll();
-  persistNow();
+  const wrote=archiveRoot?await writeCurrent():false;
+  if(!wrote){toast("没写进现有版本");return false}
+  diskReady=true;
+  dropBrowserCopies();
+  await scanAll();
+  refreshChrome();
   renderAll();
   showView("home");
   return true;
@@ -3885,11 +3942,13 @@ async function deleteLibraryHistory(id){
   if(!item) return;
   await ensureWritableArchive(true);
   if(!confirm("删除这份整库？JSON 会进回收站。")) return;
-  if(archiveRoot&&item.file){
+  if(archiveRoot&&(item.file||item.snapshot)){
     const ok=await moveHistoryToTrash(item,"library");
     if(!ok){toast("没移进回收站");return}
     await scanAll();
   }
+  historyItems=historyItems.filter(entry=>entry.id!==id);
+  state.libraryHistory=historyItems;
   log("delete","删除整库备份");
   save();
   refreshChrome();
@@ -3902,8 +3961,9 @@ async function restoreLibraryHistory(id){
   if(!item) return;
   await ensureWritableArchive(true);
   if(!confirm("用这份整库换掉现在的内容？现在的会先进历史版本。")) return;
-  const doc=await readJson(DIR_HISTORY,item.file);
-  const lib=doc&&asLibrary(doc.snapshot||doc);
+  const inline=asLibrary(item.snapshot);
+  const doc=inline?null:(item.file?await readJson(DIR_HISTORY,item.file):null);
+  const lib=inline||(doc&&asLibrary(doc.snapshot||doc));
   if(!lib){toast("这份 JSON 读不出来");return}
   await enqueue(async()=>{
     await moveCurrentToHistory();
@@ -3923,7 +3983,6 @@ function rememberTrash(type,name,data){
     try{
       await writeJson(DIR_TRASH,file,{kind:"trash",id:id,type:type,name:name,deletedAt:deletedAt,data:payload});
       entry.file=file;
-      entry.data={id:payload.id||""};
     }catch(e){
       entry.file="";
     }
@@ -4060,10 +4119,9 @@ function purgeExpired(manual){
 }
 function archiveStatusText(){
   const where=prettyPlace();
-  const count=Array.isArray(state.articles)?state.articles.length:0;
-  if(archiveRoot&&boundHref===pageIdentity()) return "当前文件夹「"+folderLabel()+"」已自动打开。位置："+where;
-  if(count) return "当前这份页面自己的文档。位置："+where;
-  return "当前文件夹还没有文档。可以新建，或手动选择文件夹。位置："+where;
+  if(archiveRoot&&boundHref===pageIdentity()) return "当前文件夹「"+folderLabel()+"」已打开，内容在旁边的 JSON。位置："+where;
+  if(sideLoaded) return "已匹配本页旁边的存档。位置："+where;
+  return "本页旁边还没有读到存档。位置："+where;
 }
 function renderArchiveStatus(){
   const el=document.getElementById("archiveStatus");
@@ -4085,12 +4143,13 @@ function swapLibrary(next){
 }
 
 load();
-renderAll();
-const startId=articleIdFromHash();
-if(startId){
+archiveBootPromise.then(function(){
+  renderAll();
+  const startId=articleIdFromHash();
+  if(!startId) return;
   if(articleById(startId)) openArticle(startId);
-  else toast("链接里的文章不在这台浏览器里");
-}
+  else if(archiveRoot) toast("链接里的文章不在旁边的存档里");
+},function(){renderAll()});
 </script>
 </body>
 </html>
