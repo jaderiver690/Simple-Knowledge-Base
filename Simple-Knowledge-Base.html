@@ -9,7 +9,7 @@
 :root{
   --bg:#f4f6f8;--panel:#fff;--panel2:#f8fafc;--text:#16202a;--muted:#718096;
   --line:#e4e9ef;--accent:#5b67f1;--accent2:#4652d8;--danger:#e05252;--ok:#2e9d6a;
-  --shadow:0 18px 55px rgba(20,30,50,.08);--radius:16px;--sidebar:270px;
+  --shadow:0 18px 55px rgba(20,30,50,.08);--radius:16px;--sidebar:270px;--title-size:26px;--body-size:17px;
 }
 [data-theme="dark"]{
   --bg:#0d1117;--panel:#151b23;--panel2:#10151c;--text:#edf2f7;--muted:#8d99a8;
@@ -50,10 +50,9 @@ button{cursor:pointer}
 .btn.ok,.mini.ok{color:var(--ok)}
 .content{padding:28px;max-width:1500px;margin:auto}
 .view{display:none}.view.active{display:block}
-.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:24px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 20px;flex-wrap:wrap;margin-bottom:24px}
 .eyebrow{font-size:12px;color:var(--accent);font-weight:800;letter-spacing:1.2px}
 .page-title{font-size:29px;margin:5px 0}
-.page-desc{color:var(--muted);font-size:14px;line-height:1.6}
 .head-actions{display:flex;gap:8px;flex-wrap:wrap}
 .grid{display:grid;gap:16px}
 .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -68,7 +67,11 @@ button{cursor:pointer}
 .article-list{display:grid;gap:8px}
 .article-row{display:flex;align-items:center;gap:13px;padding:13px;border:1px solid transparent;border-radius:12px;cursor:pointer}
 .article-row:hover{background:var(--panel2);border-color:var(--line)}
-.article-icon{width:39px;height:39px;border-radius:11px;background:var(--panel2);display:grid;place-items:center;font-size:18px;flex:none}
+.article-icon{width:39px;height:39px;border-radius:11px;background:var(--panel2);display:grid;place-items:center;font-size:18px;flex:none;overflow:hidden}
+.article-icon img,.site-card-icon img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.icon-field{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.icon-field input{flex:1;min-width:0;width:auto}
+.icon-field .btn{flex:none;white-space:nowrap}
 .article-main{min-width:0;flex:1}
 .article-title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .article-meta{color:var(--muted);font-size:11px;margin-top:4px}
@@ -105,15 +108,28 @@ button{cursor:pointer}
 .field label{font-size:12px;font-weight:700;color:var(--muted)}
 .field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 11px;border-radius:10px;outline:0}
 .field textarea{min-height:130px;resize:vertical}
-.editor{min-height:280px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.6}
+.editor{min-height:280px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.6;font-size:var(--body-size)}
 .checkline{display:flex;gap:8px;align-items:center;font-size:13px;flex-wrap:wrap}
 .cover-preview{width:100%;height:130px;border-radius:12px;object-fit:cover;background:var(--panel2);display:none}
 .article-page{max-width:980px;margin:auto}
 .article-cover{width:100%;max-height:330px;object-fit:cover;border-radius:18px;margin-bottom:22px}
-.article-head h1{font-size:39px;line-height:1.2;margin:8px 0}
-.article-summary{color:var(--muted);font-size:16px;line-height:1.7}
-.article-content{font-size:15px;line-height:1.9}
-.article-content h1,.article-content h2,.article-content h3,.article-content h4,.article-content h5,.article-content h6{line-height:1.35;margin-top:28px;scroll-margin-top:88px}
+.article-head h1,#homeReaderTitle,.node-title-input{font-size:var(--title-size);line-height:1.3;font-weight:750}
+.article-head h1{margin:8px 0}
+.article-summary{color:var(--muted);font-size:var(--body-size);line-height:1.7}
+.article-content{font-size:var(--body-size);line-height:1.75}
+.article-content h1,.article-content h2,.article-content h3,.article-content h4,.article-content h5,.article-content h6{font-weight:750;line-height:1.35;margin:1.1em 0 .4em;scroll-margin-top:88px}
+.article-content h1{font-size:var(--title-size)}
+.article-content h2{font-size:calc(var(--title-size) * .94)}
+.article-content h3{font-size:calc(var(--title-size) * .88)}
+.article-content h4{font-size:calc(var(--title-size) * .84)}
+.article-content h5{font-size:calc(var(--title-size) * .8)}
+.article-content h6{font-size:calc(var(--title-size) * .76)}
+.article-content .md-h{font-weight:700;line-height:1.45;margin:.75em 0 .3em}
+.article-content .md-h1{font-size:1.16em}
+.article-content .md-h2{font-size:1.1em}
+.article-content .md-h3{font-size:1.06em}
+.article-content .md-h4,.article-content .md-h5,.article-content .md-h6{font-size:1em}
+.article-content p{margin:.65em 0;white-space:pre-wrap;tab-size:4}
 .article-content blockquote{border-left:3px solid var(--accent);padding-left:15px;color:var(--muted);margin:12px 0}
 .article-content code{background:var(--panel2);padding:2px 5px;border-radius:5px}
 .article-content pre{background:#111827;color:#e5e7eb;padding:15px;border-radius:12px;overflow:auto}
@@ -131,14 +147,11 @@ button{cursor:pointer}
 .site-card{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:18px;transition:.16s;cursor:pointer;box-shadow:var(--shadow)}
 button.site-card{width:100%;font:inherit;text-align:left}
 .site-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
-.site-card-icon{font-size:24px;margin-bottom:12px}
+.site-card-icon{width:42px;height:42px;border-radius:12px;background:var(--panel2);display:grid;place-items:center;font-size:22px;margin-bottom:12px;overflow:hidden}
 .site-card-title{font-weight:750;font-size:15px}
 .site-card-desc{color:var(--muted);font-size:12px;line-height:1.7;margin-top:7px}
 .site-card-meta{font-size:11px;color:var(--muted);margin-top:12px}
 .site-section{margin-top:8px}
-.site-section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:13px}
-.site-section-title{font-size:19px;font-weight:800}
-.site-section-desc{font-size:12px;color:var(--muted);margin-top:4px}
 .search-page{max-width:1080px;margin:0 auto}
 .search-results{display:grid;gap:10px}
 .search-result{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:16px;cursor:pointer}
@@ -153,6 +166,9 @@ button.site-card{width:100%;font:inherit;text-align:left}
 .crumbs button{border:0;background:none;color:var(--accent);padding:0}
 .doc-manager{display:grid;grid-template-columns:minmax(260px,360px) 1fr;gap:16px;min-height:620px}
 .doc-tree{padding:8px;overflow:auto;max-height:calc(100vh - 250px)}
+.doc-size{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.doc-size label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+.doc-size input[type=range]{width:108px;accent-color:var(--accent)}
 .tree-node{margin:2px 0}
 .tree-node-line{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:10px;cursor:pointer;min-width:0}
 .tree-node-line:hover{background:var(--panel2)}
@@ -167,17 +183,14 @@ button.site-card{width:100%;font:inherit;text-align:left}
 .doc-editor-title{font-size:18px;font-weight:800}
 .doc-editor-sub{font-size:12px;color:var(--muted);margin-top:5px}
 .node-editor{padding:4px 0 0}
-.node-title-input{font-size:18px;font-weight:700}
-.node-body-editor{display:block;width:100%;min-height:320px;box-sizing:border-box;resize:vertical;padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-size:15px;line-height:1.75;font-family:inherit}
+.node-title-input{font-weight:700}
+.node-body-editor{display:block;width:100%;min-height:320px;box-sizing:border-box;resize:vertical;padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-size:var(--body-size);line-height:1.75;font-family:inherit}
 .node-title-input:focus,.node-body-editor:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent)}
 .node-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .editor-tabs{display:flex;gap:12px;margin:8px 0}
 .editor-tab{border:0;background:none;color:var(--muted);padding:6px 0;border-bottom:2px solid transparent}
 .editor-tab.active{color:var(--accent);border-color:var(--accent)}
-.doc-empty{padding:50px 25px;text-align:center;color:var(--muted)}
-.doc-preview{padding:8px 4px;line-height:1.8}
-.doc-preview h1{font-size:28px}.doc-preview h2{font-size:22px}.doc-preview h3{font-size:18px}
-.manager-note{font-size:13px;color:var(--muted);line-height:1.7;padding:10px 12px;background:var(--panel2);border-radius:10px;margin-bottom:12px}
+.doc-preview{padding:8px 4px;line-height:1.75}
 .settings-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow:auto}
 .settings-tab{border:0;background:none;color:var(--muted);padding:11px 13px;border-bottom:2px solid transparent;white-space:nowrap}
 .settings-tab.active{color:var(--accent);border-color:var(--accent)}
@@ -229,7 +242,6 @@ html[data-density="compact"] .article-row{padding:8px}
   .field.full{grid-column:auto}
   .stats,.site-grid{grid-template-columns:1fr}
   .top-actions .optional{display:none}
-  .article-head h1{font-size:28px}
   .site-card:hover{transform:none}
 }
 @media print{
@@ -370,6 +382,10 @@ html[data-density="compact"] .article-row{padding:8px}
       <div class="page-title">正文</div>
     </div>
     <div class="head-actions">
+      <div class="doc-size">
+        <label>标题 <span id="titleSizeLabel">26px</span><input id="titleSize" type="range" min="18" max="40" step="1" value="26" oninput="previewTypeSize()" onchange="saveTypeSize()"></label>
+        <label>正文 <span id="bodySizeLabel">17px</span><input id="bodySize" type="range" min="14" max="28" step="1" value="17" oninput="previewTypeSize()" onchange="saveTypeSize()"></label>
+      </div>
       <button class="btn" type="button" onclick="showView('knowledge')">全部知识</button>
       <button class="btn primary" type="button" onclick="openDocumentManagerNew()">＋ 新建</button>
     </div>
@@ -416,7 +432,7 @@ html[data-density="compact"] .article-row{padding:8px}
     <div class="head-actions"><button class="btn" type="button" onclick="purgeExpired(true)">清理过期</button><button class="btn danger" type="button" onclick="emptyTrash()">清空</button></div>
   </div>
   <div class="card">
-    <div class="toolbar"><select id="trashFilter" onchange="renderTrash()"><option value="">全部类型</option><option value="article">知识</option><option value="category">分类</option><option value="tag">标签</option><option value="navigation">导航</option></select></div>
+    <div class="toolbar"><select id="trashFilter" onchange="renderTrash()"><option value="">全部类型</option><option value="article">知识</option><option value="category">分类</option><option value="tag">标签</option><option value="navigation">导航</option><option value="version">旧版本</option><option value="library">整库</option></select></div>
     <div class="table-wrap"><table class="table"><thead><tr><th>类型</th><th>名称</th><th>删除时间</th><th>剩余</th><th></th></tr></thead><tbody id="trashTable"></tbody></table></div>
   </div>
 </div>
@@ -427,6 +443,10 @@ html[data-density="compact"] .article-row{padding:8px}
   <div class="grid two" style="margin-top:16px">
     <div class="card"><div class="card-title">分类</div><div id="analyticsCats"></div></div>
     <div class="card"><div class="card-title">标签</div><div id="analyticsTags"></div></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">旧版本 <button class="btn danger" type="button" onclick="clearVersions()">清空</button></div>
+    <div id="versionList"></div>
   </div>
 </div>
 
@@ -474,9 +494,11 @@ html[data-density="compact"] .article-row{padding:8px}
       <div class="setting-line"><div class="setting-info"><strong>回收站</strong><span id="trashSettingCount"></span></div><button class="btn" type="button" onclick="showView('trash')">打开</button></div>
     </div>
     <div class="setting-section" id="set-data">
-      <div class="setting-line"><div class="setting-info"><strong>导出</strong></div><button class="btn" type="button" onclick="exportData()">下载 JSON</button></div>
-      <div class="setting-line"><div class="setting-info"><strong>导入</strong></div><button class="btn" type="button" onclick="document.getElementById('importFile').click()">选择 JSON</button><input id="importFile" type="file" accept="application/json,.json" hidden></div>
-      <div class="setting-line"><div class="setting-info"><strong>恢复示例</strong></div><button class="btn danger" type="button" onclick="resetData()">恢复示例</button></div>
+      <div class="setting-line"><div class="setting-info"><strong>存档</strong><span id="archiveStatus">自动识别当前这个文件夹。有文档就直接打开；没有才手动选择或新建。</span></div><button class="btn" id="archivePickBtn" type="button" onclick="connectArchiveFolder()">手动选择文件夹</button></div>
+      <div class="setting-line"><div class="setting-info"><strong>导出</strong><span>只导出当前这份 JSON。</span></div><button class="btn" type="button" onclick="exportData()">导出 JSON</button></div>
+      <div class="setting-line"><div class="setting-info"><strong>导入</strong><span>直接选择 JSON。没有存档会先建好，原来的进历史版本，新的成为现有版本。</span></div><button class="btn" type="button" onclick="chooseImport()">选择 JSON</button><input id="importFile" type="file" accept="application/json,.json" hidden></div>
+      <div class="setting-line"><div class="setting-info"><strong>恢复示例</strong><span>直接恢复不打开文件夹，示例写入这个 html 旁边的存档。只有「选择文件夹」才会去选存档位置。</span></div><span style="display:flex;gap:8px;flex-shrink:0"><button class="btn danger" type="button" onclick="restoreBuiltIn()">直接恢复</button><button class="btn" type="button" onclick="resetData()">选择文件夹</button></span></div>
+      <div id="sampleFileList"></div>
     </div>
     <div class="setting-section" id="set-shortcuts">
       <div class="setting-line"><div class="setting-info"><strong>/</strong></div><span>搜索</span></div>
@@ -494,9 +516,15 @@ html[data-density="compact"] .article-row{padding:8px}
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
 <div class="command" id="commandBg" onclick="if(event.target===this)closeCommand()"><div class="command-box"><input class="command-input" id="commandInput" placeholder="搜索" oninput="renderCommands(true)"><div class="commands" id="commands"></div></div></div>
 <div class="toast" id="toast"></div>
+<script type="application/json" id="kb-place">{"id":"inst_muy0h21l_ragh1l","href":"file:///C:/Users/13031/Desktop/模版/模板.html","folder":"模版"}</script>
 
 <script>
-const KEY="ARKKNOWLEDGE_SYSTEM_V3";
+const pristine=document.documentElement.cloneNode(true);
+const FILE_PREFIX="ARKKNOWLEDGE_FILE:";
+const PATH_MAP_KEY="ARKKNOWLEDGE_PATHS";
+const VERSION_CHARS=1200000;
+const LIB_KEEP=5;
+let fileMeta={fileId:"",revision:0,origin:""};
 let state;
 let selected=new Set();
 let currentArticle=null;
@@ -509,6 +537,7 @@ let homeReaderStack=[];
 let commandItems=[];
 let commandIndex=0;
 let draggedCat=null;
+let articleIconImage="";
 let repaired=false;
 
 function uid(p){return (p||"id")+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8)}
@@ -562,16 +591,16 @@ function excerpt(s,n){
 function defaults(){
   const articles=[
     {
-      id:"a1",title:"这套库怎么用",slug:"how-to-use",summary:"数据在这台浏览器里，换电脑前先导出。",icon:"◈",cover:"",
+      id:"a1",title:"这套库怎么用",slug:"how-to-use",summary:"存档跟这个页面放在一起，分现有版本、历史版本、回收站、示例。",icon:"◈",cover:"",
       categoryId:"cat_product",tagIds:["tag_core","tag_guide"],status:"published",favorite:true,pinned:true,archived:false,author:"自己",
       createdAt:"2026-09-12T02:00:00.000Z",updatedAt:"2026-09-28T08:30:00.000Z",relatedIds:["a2"],
       documentTree:[{
         id:"n_a1",level:1,title:"这套库怎么用",
-        content:"数据在这台浏览器里。清站点数据、换浏览器，都会丢。换电脑之前去「设置 → 数据」导出 JSON。",
+        content:"每一份 html 只认自己的位置，存档就在这个页面旁边，不会跟另一份 html 混用。里面四个文件夹：现有版本、历史版本、回收站、示例。复制到新文件夹后，重新选择那一份所在的文件夹。",
         children:[
           {id:"n_a1_1",level:2,title:"平时怎么记",content:["一篇一个主题。","标题写人能看懂的话，别留着「未命名」。","短的写在当前标题下，细的再加下级。"].join("\n"),children:[]},
           {id:"n_a1_2",level:2,title:"怎么找",content:["顶栏搜索能搜到每一级标题和正文。","经常翻的点收藏。","工作台左边是最近改过的。"].join("\n"),children:[]},
-          {id:"n_a1_3",level:2,title:"删错了怎么办",content:"删除先进回收站，可以恢复。保留天数在设置里改，选「关闭」就不会自动清。\n\n改正文时会留一份改之前的版本，文章页里点「旧版本」能退回去。",children:[]}
+          {id:"n_a1_3",level:2,title:"删错了怎么办",content:"删除先进「存档/回收站」，可以恢复，也可以永久删掉 JSON。保留天数在设置里改，选「关闭」就不会自动清。\n\n改正文时会在「存档/历史版本」留一份 JSON。导入 JSON 时，选中的文件成为现有版本，原来的进历史版本。恢复示例可以直接换上内置示例，也可以按「存档/示例」里的文件名来选 JSON。",children:[]}
         ]
       }]
     },
@@ -610,7 +639,7 @@ function defaults(){
     a.readingTime=readingMinutes(a);
   });
   return {
-    config:{name:"ARKKNOWLEDGE",sub:"本地知识库",logo:"A",accent:"#5b67f1",welcome:"工作台",welcomeText:"数量、最近改过的、收藏和操作记录。",theme:"light",density:"comfortable",radius:"soft",showStats:true,showLog:true,retention:30},
+    config:{name:"ARKKNOWLEDGE",sub:"本地知识库",logo:"A",accent:"#5b67f1",welcome:"工作台",theme:"light",density:"comfortable",radius:"soft",titleSize:26,bodySize:17,reading:17,showStats:true,showLog:true,retention:30},
     navigation:[
       {id:"dashboard",label:"工作台",icon:"▦",view:"dashboard",visible:true,order:1},
       {id:"knowledge",label:"全部知识",icon:"▤",view:"knowledge",visible:true,order:2},
@@ -664,7 +693,8 @@ function normalizeArticle(article){
   article.summary=String(article.summary||"");
   const legacyFlat=hadEscapedBreaks(article.content)||(Array.isArray(article.documentTree)&&article.documentTree.length===1&&hadEscapedBreaks(article.documentTree[0]&&article.documentTree[0].content));
   article.content=repairPlainEscapes(article.content);
-  article.icon=article.icon||"◈";
+  if(/^data:image\//i.test(String(article.icon||""))){if(!safeUrl(article.icon)){article.icon="◈";repaired=true}}
+  else article.icon=article.icon||"◈";
   article.cover=article.cover||"";
   article.author=article.author||"";
   article.categoryId=article.categoryId||"";
@@ -736,26 +766,212 @@ function normalize(){
   state.articles.forEach(normalizeArticle);
   state.trash=state.trash.filter(item=>item&&item.id&&item.type);
   state.logs=state.logs.filter(item=>item&&item.detail).slice(0,80);
-  state.versions=state.versions.filter(item=>item&&item.id&&item.snapshot).slice(0,40);
+  state.versions=state.versions.filter(item=>item&&item.id&&(item.snapshot||item.file||item.title));
+  state.versions.forEach(item=>{
+    if(!item.snapshot) return;
+    if(Array.isArray(item.snapshot.documentTree)&&item.snapshot.documentTree.length&&"content" in item.snapshot){delete item.snapshot.content;repaired=true}
+  });
+  delete state.config.welcomeText;
   state.recent=state.recent.filter(id=>state.articles.some(a=>a.id===id)).slice(0,30);
 }
-function load(){
+function hash128(str){
+  let h1=2166136261,h2=2166136261^(String(str||"").length||1),h3=0x9e3779b9,h4=0x85ebca6b;
+  const s=String(str||"");
+  for(let i=0;i<s.length;i++){
+    const c=s.charCodeAt(i);
+    h1=Math.imul(h1^c,16777619);
+    h2=Math.imul(h2^(c+1),2246822519);
+    h3=Math.imul(h3^(c+i),3266489917);
+    h4=Math.imul(h4^c,668265263);
+  }
+  const hex=n=>(n>>>0).toString(16).padStart(8,"0");
+  return hex(h1)+hex(h2)+hex(h3)+hex(h4);
+}
+function samePage(href){
+  const here=pageIdentity();
+  const raw=String(href||"");
+  if(!raw||!here) return false;
+  return raw===here||raw.toLowerCase()===here.toLowerCase();
+}
+function pageIdentity(){
+  let href="";
+  try{href=decodeURIComponent(String(location.href||""))}catch(e){href=String(location.href||"")}
+  href=href.split("#")[0].split("?")[0].trim().replace(/\\/g,"/");
+  href=href.replace(/^file:\/+/i,"file:///");
+  const drive=href.match(/^file:\/\/\/([a-zA-Z]):(.*)$/);
+  if(drive) href="file:///"+drive[1].toUpperCase()+":"+drive[2];
+  return href;
+}
+function pageBits(){
+  let path=pageIdentity().replace(/^file:\/+/i,"");
+  if(/^\/[A-Za-z]:\//.test(path)) path=path.slice(1);
+  return path.split("/").filter(Boolean);
+}
+function pagePath(){
+  const parts=pageBits();
+  return parts.length?parts[parts.length-1]:"知识库.html";
+}
+function folderLabel(){
+  const parts=pageBits();
+  if(parts.length<2) return "本页文件夹";
+  return parts[parts.length-2];
+}
+function prettyPlace(){
+  let path=pageIdentity().replace(/^file:\/+/i,"");
+  if(/^\/[A-Za-z]:\//.test(path)) path=path.slice(1);
+  if(/^file:/i.test(pageIdentity())||/^[A-Za-z]:\//.test(path)) return path.replace(/\//g,"\\");
+  return pageIdentity();
+}
+function storageSlot(){
+  return hash128(pageIdentity());
+}
+function readPlaceRecord(){
+  const node=document.getElementById("kb-place");
+  if(!node) return {id:"",href:"",folder:""};
   try{
-    const raw=localStorage.getItem(KEY);
-    state=raw?JSON.parse(raw):defaults();
-    if(!state||typeof state!=="object"||Array.isArray(state)) state=defaults();
-  }catch(e){state=defaults()}
+    const data=JSON.parse(node.textContent||"{}");
+    const rec={id:String(data&&data.id||""),href:String(data&&data.href||""),folder:String(data&&data.folder||"")};
+    if(rec.href&&!samePage(rec.href)) return {id:"",href:"",folder:""};
+    return rec;
+  }catch(e){return {id:"",href:"",folder:""}}
+}
+function readPlaceStamp(){
+  return readPlaceRecord().href;
+}
+function placeDrift(){
+  const stamp=readPlaceStamp();
+  return !!stamp&&stamp!==pageIdentity();
+}
+function readKey(key){
+  try{return localStorage.getItem(key)}catch(e){return null}
+}
+function readPathMap(){
+  try{
+    const map=JSON.parse(readKey(PATH_MAP_KEY)||"{}");
+    if(!map||typeof map!=="object"||Array.isArray(map)) return {};
+    const clean={};
+    Object.keys(map).forEach(key=>{
+      if(!key||key.includes("/")||key.includes("\\")||key.includes(":")) return;
+      clean[key]=map[key];
+    });
+    return clean;
+  }catch(e){return {}}
+}
+function parseEnvelope(raw){
+  try{if(typeof raw==="string") raw=JSON.parse(raw)}catch(e){return null}
+  if(!raw||typeof raw!=="object"||Array.isArray(raw)) return null;
+  const place=String(raw.place||"");
+  if(Array.isArray(raw.articles)) return {fileId:"",revision:1,origin:"",state:raw,place:""};
+  if(raw.external) return {fileId:String(raw.fileId||""),revision:Number(raw.revision)||0,origin:String(raw.origin||""),state:null,external:true,place:place};
+  if(raw.fileId||raw.revision||Object.prototype.hasOwnProperty.call(raw,"state")) return {fileId:String(raw.fileId||""),revision:Number(raw.revision)||0,origin:String(raw.origin||""),state:(raw.state&&Array.isArray(raw.state.articles))?raw.state:null,external:false,place:place};
+  return null;
+}
+function readEmbedded(){
+  const node=document.getElementById("kb-data");
+  if(!node) return null;
+  try{
+    const data=JSON.parse(node.textContent||"");
+    if(data&&data.id&&data.state&&Array.isArray(data.state.articles)) return {id:String(data.id),state:data.state};
+  }catch(e){}
+  return null;
+}
+function libraryScore(data){
+  const articles=Array.isArray(data&&data.articles)?data.articles:[];
+  let chars=0;
+  const walk=nodes=>{(nodes||[]).forEach(node=>{chars+=String(node.title||"").length+String(node.content||"").length;walk(node.children)})};
+  articles.forEach(article=>{chars+=String(article.title||"").length+String(article.content||"").length;walk(article.documentTree)});
+  const sample=articles.length>0&&articles.length<=3&&articles.every(article=>article&&(article.id==="a1"||article.id==="a2"||article.id==="a3"));
+  return (sample?0:1000000000)+chars+articles.length;
+}
+function bestExisting(origin){
+  let best=null,bestScore=-1,bestKey="";
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(!key||key.indexOf("ARKKNOWLEDGE")!==0||key===PATH_MAP_KEY||key.endsWith(":resets")) continue;
+      const env=parseEnvelope(readKey(key));
+      if(!env||!env.state||env.origin!==origin) continue;
+      const score=libraryScore(env.state);
+      if(score>bestScore){bestScore=score;best=env;bestKey=key}
+    }
+  }catch(e){return null}
+  if(!best) return null;
+  let history=[];
+  try{const parsed=JSON.parse(readKey(bestKey+":resets")||"[]"); if(Array.isArray(parsed)) history=parsed}catch(e){}
+  return {state:JSON.parse(JSON.stringify(best.state)),history:history};
+}
+function historyOf(fileId){
+  try{
+    const list=JSON.parse(readKey(FILE_PREFIX+fileId+":resets")||"[]");
+    return Array.isArray(list)?list.filter(item=>item&&item.id&&item.snapshot&&Array.isArray(item.snapshot.articles)):[];
+  }catch(e){return []}
+}
+function emptyLibrary(){
+  const data=defaults();
+  data.articles=[];
+  data.categories=[];
+  data.tags=[];
+  data.logs=[];
+  data.trash=[];
+  data.versions=[];
+  data.recent=[];
+  return data;
+}
+function load(){
+  const path=storageSlot();
+  const map=readPathMap();
+  const embedded=readEmbedded();
+  const origin=embedded?embedded.id:"";
+  let id=map[path]||"";
+  let stored=id?parseEnvelope(readKey(FILE_PREFIX+id)):null;
+  if(stored&&stored.place&&stored.place!==pageIdentity()){
+    id="";
+    stored=null;
+  }
+  let replaced=null,oldId="";
+  if(embedded&&stored&&stored.state&&stored.origin!==origin){
+    replaced=stored.state;
+    oldId=id;
+    id="";
+    stored=null;
+  }
+  let fresh=false;
+  if(id&&stored&&stored.external&&!stored.state){
+    fileMeta.fileId=id;
+    fileMeta.revision=stored.revision||0;
+    fileMeta.origin=stored.origin||origin;
+    state=emptyLibrary();
+    kbExternal=true;
+  }else if(id&&stored&&stored.state){
+    fileMeta.fileId=id;
+    fileMeta.revision=stored.revision||0;
+    fileMeta.origin=stored.origin;
+    state=stored.state;
+  }else if(id&&historyOf(id).length){
+    fileMeta.fileId=id;
+    fileMeta.revision=0;
+    fileMeta.origin=origin;
+    state=JSON.parse(JSON.stringify(historyOf(id)[0].snapshot));
+    fresh=true;
+  }else{
+    fileMeta.fileId=uid("file");
+    fileMeta.revision=0;
+    fileMeta.origin=origin;
+    if(embedded) state=JSON.parse(JSON.stringify(embedded.state));
+    else state=emptyLibrary();
+    fresh=true;
+    pendingCarry=[];
+  }
+  if(!state||typeof state!=="object"||Array.isArray(state)) state=defaults();
   repaired=false;
   normalize();
   applyConfig();
-  const purged=purgeExpired(false);
-  if(repaired||purged) save();
+  purgeExpired(false);
+  archiveMigrated=false;
+  archiveBootPromise=bootArchive();
 }
-function save(){
-  try{localStorage.setItem(KEY,JSON.stringify(state))}
-  catch(e){toast("没保存成功。浏览器可能禁止了本地存储，或者空间满了。");return}
-  refreshChrome();
-}
+
+function historyStorageKey(){return FILE_PREFIX+fileMeta.fileId+":resets"}
 function log(action,detail){
   if(!Array.isArray(state.logs)) state.logs=[];
   state.logs.unshift({id:uid("log"),time:now(),action:action,detail:String(detail||"")});
@@ -768,14 +984,13 @@ function applyConfig(){
   document.documentElement.dataset.density=cfg.density==="compact"?"compact":"comfortable";
   document.documentElement.style.setProperty("--accent",safeColor(cfg.accent));
   document.documentElement.style.setProperty("--radius",cfg.radius==="sharp"?"9px":"16px");
+  applyTypeSize(cfg.titleSize, cfg.bodySize!=null?cfg.bodySize:cfg.reading);
   document.getElementById("brandLogo").textContent=cfg.logo||"A";
   document.getElementById("brandName").textContent=cfg.name||"ARKKNOWLEDGE";
   document.getElementById("brandSub").textContent=cfg.sub||"";
   document.title=cfg.name||"ARKKNOWLEDGE";
   const welcome=document.getElementById("welcomeTitle");
-  const welcomeText=document.getElementById("welcomeText");
   if(welcome) welcome.textContent=cfg.welcome||"工作台";
-  if(welcomeText) welcomeText.textContent=cfg.welcomeText||"";
   const themeBtn=document.getElementById("themeBtn");
   if(themeBtn) themeBtn.textContent=theme==="dark"?"☀":"☾";
   const stats=document.getElementById("statsGrid");
@@ -831,9 +1046,17 @@ function statusBadge(article){
   if(article.status==="draft") return '<span class="badge draft">草稿</span>';
   return "";
 }
+function iconMark(icon){
+  const raw=String(icon||"").trim();
+  if(/^data:image\//i.test(raw)){
+    const url=safeUrl(raw);
+    return url?'<img alt="" src="'+esc(url)+'" referrerpolicy="no-referrer">':"◈";
+  }
+  return esc(Array.from(raw||"◈").slice(0,8).join("")||"◈");
+}
 function articleRow(article){
   return '<div class="article-row" data-act="open-article" data-id="'+esc(article.id)+'">'
-    +'<div class="article-icon">'+esc(article.icon||"◈")+"</div>"
+    +'<div class="article-icon">'+iconMark(article.icon)+"</div>"
     +'<div class="article-main"><div class="article-title">'+esc(article.title)+(article.pinned?" 📌":"")+"</div>"
     +'<div class="article-meta">'+esc(catName(article.categoryId))+" · "+esc(fmt(article.updatedAt))+" · "+esc(statusText(article))+"</div></div>"
     +"<div>"+tagHtml(article.tagIds)+"</div>"
@@ -940,13 +1163,7 @@ function touchTree(article){
   article.updatedAt=now();
   article.readingTime=readingMinutes(article);
 }
-function pushVersion(article){
-  const snap=JSON.parse(JSON.stringify(article));
-  const last=state.versions.find(v=>v.articleId===article.id);
-  if(last&&JSON.stringify(last.snapshot)===JSON.stringify(snap)) return;
-  state.versions.unshift({id:uid("ver"),articleId:article.id,time:now(),snapshot:snap});
-  state.versions=state.versions.slice(0,40);
-}
+
 function siblingInfo(article,nodeId){
   const hit=findDocumentNode(article,nodeId);
   if(!hit) return null;
@@ -993,7 +1210,7 @@ function showView(view){
   el.classList.add("active");
   document.querySelectorAll(".sidebar .nav-item").forEach(x=>x.classList.toggle("active",x.dataset.view===view));
   closeSearchDrop();
-  if(location.hash) history.replaceState(null,"",location.pathname+location.search);
+  if(location.hash){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
   if(view==="home"){homeReaderStack=[];renderHome()}
   if(view==="dashboard") renderDashboard();
   if(view==="search") renderGlobalSearch();
@@ -1039,7 +1256,7 @@ function renderHome(){
   box.innerHTML=items.map(({article,node})=>{
     const desc=excerpt(node.content)||excerpt(article.summary);
     return '<button type="button" class="site-card" data-act="open-home" data-article="'+esc(article.id)+'" data-node="'+esc(node.id)+'">'
-      +'<div class="site-card-icon">'+esc(article.icon||"◈")+"</div>"
+      +'<div class="site-card-icon">'+iconMark(article.icon)+"</div>"
       +'<div class="site-card-title">'+esc(node.title||article.title)+(article.pinned?" 📌":"")+statusBadge(article)+"</div>"
       +(desc?'<div class="site-card-desc">'+esc(desc)+"</div>":"")
       +'<div class="site-card-meta">'+esc(catName(article.categoryId))+" · "+esc(fmt(article.updatedAt))+"</div></button>";
@@ -1054,7 +1271,7 @@ function showHomeNode(articleId,nodeId){
   homeReaderStack=path.map(node=>({articleId:articleId,nodeId:node.id}));
   renderHomeNode(article,path[path.length-1],path);
 }
-function renderHomeNode(article,node,path){
+function renderHomeNode(article,node,path,quiet){
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
   document.getElementById("view-home-reader").classList.add("active");
   document.querySelectorAll(".sidebar .nav-item").forEach(x=>x.classList.toggle("active",x.dataset.view==="home"));
@@ -1074,7 +1291,7 @@ function renderHomeNode(article,node,path){
     return '<button type="button" class="site-card" data-act="open-home" data-article="'+esc(article.id)+'" data-node="'+esc(child.id)+'">'
       +'<div class="site-card-title">'+esc(child.title||"未命名")+"</div></button>";
   }).join("");
-  if(state.recent[0]!==article.id){
+  if(!quiet&&state.recent[0]!==article.id){
     state.recent=[article.id,...state.recent.filter(id=>id!==article.id)].slice(0,30);
     save();
   }
@@ -1250,7 +1467,7 @@ function renderKnowledge(){
   if(!body) return;
   body.innerHTML=rows.length?rows.map(article=>'<tr>'
     +'<td><input class="check rowcheck" type="checkbox" data-id="'+esc(article.id)+'"'+(selected.has(article.id)?" checked":"")+"></td>"
-    +'<td><div style="display:flex;gap:10px;align-items:center"><div class="article-icon">'+esc(article.icon||"◈")+'</div><div><button type="button" class="mini" style="padding:0;color:inherit;font-weight:700" data-act="open-article" data-id="'+esc(article.id)+'">'+esc(article.title)+(article.pinned?" 📌":"")+'</button><div class="article-meta">'+esc(excerpt(article.summary,90)||"")+"</div></div></div></td>"
+    +'<td><div style="display:flex;gap:10px;align-items:center"><div class="article-icon">'+iconMark(article.icon)+'</div><div><button type="button" class="mini" style="padding:0;color:inherit;font-weight:700" data-act="open-article" data-id="'+esc(article.id)+'">'+esc(article.title)+(article.pinned?" 📌":"")+'</button><div class="article-meta">'+esc(excerpt(article.summary,90)||"")+"</div></div></div></td>"
     +"<td>"+esc(catName(article.categoryId))+"</td><td>"+tagHtml(article.tagIds)+"</td><td>"+esc(statusText(article))+"</td><td>"+esc(fmt(article.updatedAt))+"</td>"
     +'<td><button type="button" class="mini" data-act="edit-article" data-id="'+esc(article.id)+'">✎</button><button type="button" class="mini danger" data-act="delete-article" data-id="'+esc(article.id)+'">删除</button></td></tr>').join(""):'<tr><td colspan="7">'+empty("没有符合条件的知识")+"</td></tr>";
   const headCheck=document.querySelector("#view-knowledge thead .check");
@@ -1267,12 +1484,13 @@ function selectArticle(id,on){
 function toggleAll(el){
   document.querySelectorAll(".rowcheck").forEach(box=>{box.checked=el.checked;selectArticle(box.dataset.id,el.checked)});
 }
-function bulkAction(type){
+async function bulkAction(type){
   const ids=[...selected];
   if(!ids.length){toast("先勾选几条");return}
   if(type==="delete"){
+    await materializeArchive(true);
     if(!confirm("把选中的 "+ids.length+" 条放进回收站？")) return;
-    ids.forEach(deleteArticleSilent);
+    for(const id of ids) await deleteArticleSilent(id);
     selected.clear();
     log("bulk","批量删除 "+ids.length+" 条");
     save();
@@ -1327,13 +1545,15 @@ function bulkAction(type){
 }
 
 function inlineFormat(raw){
-  let text=esc(raw);
-  text=text.replace(/`([^`]+)`/g,"<code>$1</code>");
-  text=text.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,'<img alt="$1" src="$2" referrerpolicy="no-referrer">');
-  text=text.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">$1</a>');
-  text=text.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
-  text=text.replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>");
-  return text;
+  return String(raw??"").split(/(`[^`\n]+`)/).map(part=>{
+    if(/^`[^`\n]+`$/.test(part)) return "<code>"+esc(part.slice(1,-1))+"</code>";
+    let text=esc(part);
+    text=text.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,'<img alt="$1" src="$2" referrerpolicy="no-referrer">');
+    text=text.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">$1</a>');
+    text=text.replace(/(^|[^*\w])\*\*(?=\S)([^*\n]*?\S)\*\*(?![*\w])/g,"$1<strong>$2</strong>");
+    text=text.replace(/(^|[^*\w])\*(?=\S)([^*\n]*?\S)\*(?![*\w])/g,"$1<em>$2</em>");
+    return text;
+  }).join("");
 }
 function md(src){
   const lines=String(src||"").replace(/\r\n/g,"\n").split("\n");
@@ -1356,7 +1576,7 @@ function md(src){
     if(/^```/.test(line)){flushAll();code=[];continue}
     if(!line.trim()){flushAll();continue}
     let matched=line.match(/^(#{1,6})\s+(.*)$/);
-    if(matched){flushAll();html+="<h"+matched[1].length+">"+inlineFormat(matched[2])+"</h"+matched[1].length+">";continue}
+    if(matched){flushAll();html+='<div class="md-h md-h'+matched[1].length+'">'+inlineFormat(matched[2])+"</div>";continue}
     if(/^\s*[-*]\s+/.test(line)){
       flushPara();flushQuote();
       if(!list||list.type!=="ul"){flushList();list={type:"ul",items:[]}}
@@ -1369,7 +1589,7 @@ function md(src){
       list.items.push(line.replace(/^\s*\d+[.)]\s+/,""));
       continue;
     }
-    matched=line.match(/^>\s?(.*)$/);
+    matched=line.match(/^>(?!>)\s?(.*)$/);
     if(matched){flushPara();flushList();quote.push(matched[1]);continue}
     if(/^(---|\*\*\*)$/.test(line.trim())){flushAll();html+="<hr>";continue}
     flushList();flushQuote();
@@ -1411,7 +1631,7 @@ function openArticle(id,opts){
     save();
   }
   const hash="#article="+encodeURIComponent(id);
-  if(location.hash!==hash) history.replaceState(null,"",hash);
+  if(location.hash!==hash){try{history.replaceState(null,"",hash)}catch(e){}}
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
   document.getElementById("view-article").classList.add("active");
   document.querySelectorAll(".sidebar .nav-item").forEach(x=>x.classList.remove("active"));
@@ -1508,29 +1728,27 @@ function copyText(text){
 function copyArticleLink(id){
   copyText("#article="+encodeURIComponent(id));
 }
+function versionRow(v){
+  const title=v.title||v.snapshot?.title||"未命名";
+  const alive=articleById(v.articleId);
+  const file=v.file?" · "+v.file:"";
+  return '<div class="setting-line"><div class="setting-info"><strong>'+esc(title)+'</strong><span>'+esc(fmtFull(v.time))+(alive?"":" · 原文已不在")+esc(file)+'</span></div><div style="display:flex;gap:8px"><button class="btn" type="button" data-act="restore-ver" data-id="'+esc(v.id)+'">恢复</button><button class="btn danger" type="button" data-act="delete-ver" data-id="'+esc(v.id)+'">删除</button></div></div>';
+}
+function libraryHistoryRow(item){
+  const articles=item.snapshot&&item.snapshot.articles||[];
+  const count=articles.length||Number(item.count)||0;
+  const titles=item.titles||excerpt(articles.map(article=>article&&article.title||"").filter(Boolean).join("、"),40);
+  const file=item.file?" · "+item.file:"";
+  return '<div class="setting-line"><div class="setting-info"><strong>整库</strong><span>'+esc(fmtFull(item.time))+" · "+count+" 篇"+(titles?" · "+esc(titles):"")+esc(file)+'</span></div><div style="display:flex;gap:8px"><button class="btn" type="button" data-act="restore-lib" data-id="'+esc(item.id)+'">恢复</button><button class="btn danger" type="button" data-act="delete-lib" data-id="'+esc(item.id)+'">删除</button></div></div>';
+}
 function openVersionList(id){
   const list=state.versions.filter(v=>v.articleId===id);
-  openModal("旧版本",list.length?list.map(v=>'<div class="setting-line"><div class="setting-info"><strong>'+esc(v.snapshot?.title||"未命名")+"</strong><span>"+esc(fmtFull(v.time))+'</span></div><button class="btn" type="button" data-act="restore-ver" data-id="'+esc(v.id)+'">恢复</button></div>').join(""):empty("还没有旧版本"),"关闭",closeModal);
+  openModal("旧版本",list.length?list.map(versionRow).join(""):empty("还没有旧版本"),"关闭",closeModal);
 }
-function restoreVersion(verId){
-  const version=state.versions.find(v=>v.id===verId);
-  if(!version) return;
-  if(!confirm("用这个版本覆盖现在的内容？")) return;
-  const current=articleById(version.articleId);
-  if(!current){toast("原文已经不在库里了");return}
-  pushVersion(current);
-  const snap=JSON.parse(JSON.stringify(version.snapshot));
-  snap.id=current.id;
-  snap.updatedAt=now();
-  const index=state.articles.findIndex(a=>a.id===current.id);
-  normalizeArticle(snap);
-  state.articles[index]=snap;
-  log("restore","恢复旧版本："+snap.title);
-  save();
-  closeModal();
-  openArticle(snap.id);
-  toast("已恢复到旧版本");
-}
+
+
+
+
 
 function categoryOptions(selectedId,withEmpty){
   const roots=state.categories.filter(c=>!c.parentId).sort((a,b)=>a.order-b.order);
@@ -1550,10 +1768,12 @@ function openArticleEditor(id){
   const data=article||{title:"",summary:"",icon:"◈",cover:"",categoryId:"",tagIds:[],status:"draft",author:"",pinned:false,favorite:false,archived:false,relatedIds:[]};
   const markdown=article?documentToMarkdown(article):"";
   const others=state.articles.filter(item=>item.id!==id);
-  const versions=id?state.versions.filter(v=>v.articleId===id).slice(0,12):[];
+  const versions=id?state.versions.filter(v=>v.articleId===id):[];
+  const iconIsImage=/^data:image\//i.test(String(data.icon||""));
+  articleIconImage=iconIsImage&&safeUrl(data.icon)?data.icon:"";
   openModal(id?"改知识":"新建知识",'<div class="form-grid">'
     +'<div class="field full"><label>标题</label><input id="afTitle" value="'+esc(data.title)+'" autofocus></div>'
-    +'<div class="field"><label>图标</label><input id="afIcon" value="'+esc(data.icon||"◈")+'"></div>'
+    +'<div class="field"><label>图标</label><div class="icon-field"><div class="article-icon" id="afIconPreview"></div><input id="afIcon" value="'+esc(articleIconImage?"":(data.icon||"◈"))+'" placeholder="文字"><label class="btn">上传图片<input id="afIconFile" type="file" accept="image/png,image/jpeg,image/gif,image/webp" hidden></label><button class="btn" type="button" id="afIconClear">去掉</button></div></div>'
     +'<div class="field"><label>作者</label><input id="afAuthor" value="'+esc(data.author||"")+'"></div>'
     +'<div class="field full"><label>摘要</label><textarea id="afSummary">'+esc(data.summary||"")+"</textarea></div>"
     +'<div class="field"><label>分类</label><select id="afCat">'+categoryOptions(data.categoryId||"",true)+"</select></div>"
@@ -1563,7 +1783,7 @@ function openArticleEditor(id){
     +'<div class="field full"><label>正文</label><textarea id="afContent" class="editor">'+esc(markdown)+'</textarea></div>'
     +'<div class="field full"><label>相关知识</label><select id="afRelated" multiple size="'+Math.min(6,Math.max(3,others.length||3))+'">'+(others.map(item=>'<option value="'+esc(item.id)+'"'+((data.relatedIds||[]).includes(item.id)?" selected":"")+">"+esc(item.title)+"</option>").join("")||'<option value="" disabled>还没有别的知识</option>')+"</select></div>"
     +'<div class="field full"><label class="checkline"><input type="checkbox" id="afPin"'+(data.pinned?" checked":"")+'> 置顶 <input type="checkbox" id="afFav"'+(data.favorite?" checked":"")+'> 收藏 <input type="checkbox" id="afArch"'+(data.archived?" checked":"")+"> 归档</label></div>"
-    +(id?('<div class="field full"><label>旧版本</label>'+(versions.length?versions.map(v=>'<div class="setting-line"><span>'+esc(fmtFull(v.time))+" · "+esc(v.snapshot?.title||"")+'</span><button class="btn" type="button" data-act="restore-ver" data-id="'+esc(v.id)+'">恢复</button></div>').join(""):"<span style=\"color:var(--muted);font-size:12px\">还没有。</span>")+"</div>"):"")
+    +(id?('<div class="field full"><label>旧版本</label>'+(versions.length?versions.map(versionRow).join(""):"<span style=\"color:var(--muted);font-size:12px\">还没有。</span>")+"</div>"):"")
     +"</div>","保存",()=>saveArticle(id));
   const coverInput=document.getElementById("afCover");
   const preview=document.getElementById("afCoverPreview");
@@ -1574,6 +1794,46 @@ function openArticleEditor(id){
   };
   coverInput.addEventListener("input",syncCover);
   syncCover();
+  const iconInput=document.getElementById("afIcon");
+  const iconClear=document.getElementById("afIconClear");
+  const paintIcon=()=>{
+    document.getElementById("afIconPreview").innerHTML=iconMark(articleIconImage||iconInput.value||"◈");
+    iconClear.style.display=articleIconImage?"inline-flex":"none";
+  };
+  iconInput.addEventListener("input",()=>{articleIconImage="";paintIcon()});
+  iconClear.addEventListener("click",()=>{articleIconImage="";if(!iconInput.value.trim()) iconInput.value="◈";paintIcon()});
+  document.getElementById("afIconFile").addEventListener("change",event=>{
+    const file=event.target.files&&event.target.files[0];
+    event.target.value="";
+    if(!file) return;
+    readIconFile(file,url=>{articleIconImage=url;iconInput.value="";paintIcon()});
+  });
+  paintIcon();
+}
+function readIconFile(file,done){
+  if(!file||!/^image\/(png|jpeg|gif|webp)$/.test(file.type)){toast("请选 png、jpg、gif 或 webp");return}
+  if(file.size>8*1024*1024){toast("图片请小于 8MB");return}
+  const reader=new FileReader();
+  reader.onerror=()=>toast("这张图读不了");
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const size=96;
+      const canvas=document.createElement("canvas");
+      canvas.width=size;
+      canvas.height=size;
+      const ctx=canvas.getContext("2d");
+      const scale=Math.max(size/img.width,size/img.height);
+      const w=img.width*scale,h=img.height*scale;
+      ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);
+      const url=canvas.toDataURL("image/png");
+      if(!safeUrl(url)){toast("这张图太大");return}
+      done(url);
+    };
+    img.onerror=()=>toast("这张图打不开");
+    img.src=String(reader.result||"");
+  };
+  reader.readAsDataURL(file);
 }
 function saveArticle(id){
   const title=document.getElementById("afTitle").value.trim();
@@ -1586,8 +1846,8 @@ function saveArticle(id){
   if(!old){
     tree=buildTree(title,typed).documentTree;
   }else{
-    const current=documentToMarkdown(old).trim();
-    if(typed.trim()===current){
+    const current=documentToMarkdown(old).replace(/\r\n?/g,"\n").trim();
+    if(typed.replace(/\r\n?/g,"\n").trim()===current){
       tree=JSON.parse(JSON.stringify(old.documentTree||[]));
       if(tree[0]) tree[0].title=title;
     }else if(confirm("正文和现在的目录不一致。确定就按 Markdown 重建目录，取消则只保存标题和属性。")){
@@ -1604,7 +1864,7 @@ function saveArticle(id){
     id:id||uid("article"),
     title:title,
     summary:document.getElementById("afSummary").value.trim(),
-    icon:Array.from(document.getElementById("afIcon").value.trim()||"◈").slice(0,4).join(""),
+    icon:articleIconImage&&safeUrl(articleIconImage)?articleIconImage:Array.from(document.getElementById("afIcon").value.trim()||"◈").slice(0,4).join(""),
     cover:cover,
     categoryId:document.getElementById("afCat").value,
     tagIds:tags,
@@ -1638,21 +1898,23 @@ function buildTree(title,content){
   article.content=documentToMarkdown(article);
   return article;
 }
-function deleteArticleSilent(id){
+async function deleteArticleSilent(id){
   const article=articleById(id);
   if(!article) return;
+  const copy=JSON.parse(JSON.stringify(article));
   state.articles=state.articles.filter(item=>item.id!==id);
   state.recent=state.recent.filter(item=>item!==id);
   state.articles.forEach(item=>{item.relatedIds=(item.relatedIds||[]).filter(rel=>rel!==id)});
-  state.trash.unshift({id:uid("trash"),type:"article",name:article.title,deletedAt:now(),data:article});
+  await rememberTrash("article",copy.title,copy);
   if(documentSelected.articleId===id){documentSelected={articleId:null,nodeId:null};documentDraft=null}
 }
-function deleteArticle(id){
+async function deleteArticle(id){
   const article=articleById(id);
   if(!article) return;
+  await ensureWritableArchive(true);
   if(!confirm("把「"+article.title+"」放进回收站？")) return;
   const viewing=currentArticle===id;
-  deleteArticleSilent(id);
+  await deleteArticleSilent(id);
   selected.delete(id);
   log("delete","删除："+article.title);
   save();
@@ -1776,7 +2038,7 @@ function markDraftDirty(){
   clearTimeout(draftTimer);
   draftTimer=setTimeout(()=>saveDocumentNode(true),700);
 }
-function saveDocumentNode(silent){
+async function saveDocumentNode(silent){
   const got=getSelectedDocumentNode();
   if(!got){if(!silent) toast("还没选中标题");return}
   const title=(document.getElementById("nodeTitle")?document.getElementById("nodeTitle").value:documentDraft?.title||"").trim();
@@ -1791,6 +2053,8 @@ function saveDocumentNode(silent){
     if(stateEl) stateEl.textContent="已保存";
     return;
   }
+  if(!silent) await ensureWritableArchive(true);
+  else await materializeArchive(false);
   if(!documentDraft?.snapshotted){
     pushVersion(article);
     if(documentDraft) documentDraft.snapshotted=true;
@@ -1900,12 +2164,13 @@ function demoteDocumentNode(articleId,nodeId){
   save();
   selectFresh(articleId,nodeId);
 }
-function deleteDocumentNode(articleId,nodeId){
+async function deleteDocumentNode(articleId,nodeId){
   const article=articleById(articleId);
   if(!article||!flushCurrentIfNeeded()) return;
   const info=siblingInfo(article,nodeId);
   if(!info) return;
   if(!info.hit.parent&&article.documentTree.length===1){toast("根标题不能删。要删整篇，去知识列表。");return}
+  await materializeArchive(true);
   if((info.hit.node.children||[]).length&&!confirm("下级标题会一起删掉。")) return;
   pushVersion(article);
   info.arr.splice(info.index,1);
@@ -2064,11 +2329,13 @@ function deleteCategory(id){
   const ids=catFamily(id);
   const others=state.categories.filter(c=>!ids.includes(c.id));
   const select=others.length?'<select id="catMoveTo"><option value="">改为未分类</option>'+others.map(item=>'<option value="'+esc(item.id)+'">'+esc(item.name)+"</option>").join("")+"</select>":'<input id="catMoveTo" type="hidden" value=""><div>没有别的分类，这些知识会变成未分类。</div>';
-  openModal("删除分类",'<p>删除「'+esc(category.name)+"」"+(ids.length>1?("，连同 "+(ids.length-1)+" 个子分类"):"")+'。分类进回收站，知识还在。</p><div class="field" style="margin-top:12px"><label>这些知识挪到</label>'+select+"</div>","删除",()=>{
+  openModal("删除分类",'<p>删除「'+esc(category.name)+"」"+(ids.length>1?("，连同 "+(ids.length-1)+" 个子分类"):"")+'。分类进回收站，知识还在。</p><div class="field" style="margin-top:12px"><label>这些知识挪到</label>'+select+"</div>","删除",async ()=>{
+    await ensureWritableArchive(true);
     const target=document.getElementById("catMoveTo").value||"";
     if(target&&ids.includes(target)){toast("不能挪到正被删除的分类");return}
     state.articles.forEach(article=>{if(ids.includes(article.categoryId)) article.categoryId=target});
-    state.categories.filter(item=>ids.includes(item.id)).forEach(item=>state.trash.unshift({id:uid("trash"),type:"category",name:item.name,deletedAt:now(),data:item}));
+    const removed=state.categories.filter(item=>ids.includes(item.id)).map(item=>JSON.parse(JSON.stringify(item)));
+    for(const item of removed) await rememberTrash("category",item.name,item);
     state.categories=state.categories.filter(item=>!ids.includes(item.id));
     log("delete","删除分类："+category.name);
     save();
@@ -2111,19 +2378,22 @@ function saveTag(id){
   renderAll();
   toast("标签已保存");
 }
-function deleteTag(id){
+async function deleteTag(id){
   const tag=state.tags.find(item=>item.id===id);
-  if(!tag||!confirm("删除标签「"+tag.name+"」？知识还在，只是不再挂这个标签。")) return;
+  if(!tag) return;
+  await ensureWritableArchive(true);
+  if(!confirm("删除标签「"+tag.name+"」？知识还在，只是不再挂这个标签。")) return;
+  const copy=JSON.parse(JSON.stringify(tag));
   state.articles.forEach(article=>{article.tagIds=(article.tagIds||[]).filter(item=>item!==id)});
   state.tags=state.tags.filter(item=>item.id!==id);
-  state.trash.unshift({id:uid("trash"),type:"tag",name:tag.name,deletedAt:now(),data:tag});
-  log("delete","删除标签："+tag.name);
+  await rememberTrash("tag",copy.name,copy);
+  log("delete","删除标签："+copy.name);
   save();
   renderAll();
   toast("标签已删除");
 }
 
-function typeName(type){return ({article:"知识",category:"分类",tag:"标签",navigation:"导航"})[type]||type}
+function typeName(type){return ({article:"知识",category:"分类",tag:"标签",navigation:"导航",version:"旧版本",library:"整库",export:"导出 JSON"})[type]||type}
 function renderTrash(){
   const filter=document.getElementById("trashFilter")?.value||"";
   const rows=state.trash.filter(item=>!filter||item.type===filter);
@@ -2131,73 +2401,17 @@ function renderTrash(){
   if(body){
     body.innerHTML=rows.length?rows.map(item=>{
       const days=Number(state.config.retention)?Math.max(0,Number(state.config.retention)-Math.floor((Date.now()-new Date(item.deletedAt))/86400000)):"—";
-      return "<tr><td>"+esc(typeName(item.type))+"</td><td><b>"+esc(item.name)+"</b></td><td>"+esc(fmtFull(item.deletedAt))+"</td><td>"+(days==="—"?"不自动删":days+" 天")+'</td><td><button type="button" class="mini ok" data-act="restore-trash" data-id="'+esc(item.id)+'">恢复</button><button type="button" class="mini danger" data-act="purge-trash" data-id="'+esc(item.id)+'">永久删除</button></td></tr>';
+      const fileNote=item.file?item.file:"";
+      return "<tr><td>"+esc(typeName(item.type))+"</td><td><b>"+esc(item.name)+"</b>"+(fileNote?'<div class="article-meta">'+esc(fileNote)+"</div>":"")+"</td><td>"+esc(fmtFull(item.deletedAt))+"</td><td>"+(days==="—"?"不自动删":days+" 天")+'</td><td><button type="button" class="mini ok" data-act="restore-trash" data-id="'+esc(item.id)+'">恢复</button><button type="button" class="mini danger" data-act="purge-trash" data-id="'+esc(item.id)+'">永久删除</button></td></tr>';
     }).join(""):'<tr><td colspan="5">'+empty("回收站是空的")+"</td></tr>";
   }
   const hint=document.getElementById("trashSettingCount");
   if(hint) hint.textContent="现在有 "+state.trash.length+" 条";
 }
-function restoreTrash(id){
-  const item=state.trash.find(entry=>entry.id===id);
-  if(!item) return;
-  const data=item.data||{};
-  if(item.type==="article"){
-    if(state.articles.some(article=>article.id===data.id)){toast("库里已经有这一条了");return}
-    if(data.categoryId&&!state.categories.some(c=>c.id===data.categoryId)) data.categoryId="";
-    state.articles.unshift(data);
-  }else if(item.type==="category"){
-    if(state.categories.some(c=>c.id===data.id)){toast("这个分类还在");return}
-    if(data.parentId&&!state.categories.some(c=>c.id===data.parentId)) data.parentId=null;
-    state.categories.push(data);
-  }else if(item.type==="tag"){
-    if(state.tags.some(tag=>tag.id===data.id)){toast("这个标签还在");return}
-    state.tags.push(data);
-  }else if(item.type==="navigation"){
-    if(state.navigation.some(nav=>nav.id===data.id)){toast("这个导航还在");return}
-    state.navigation.push(data);
-  }else{toast("这种类型恢复不了");return}
-  state.trash=state.trash.filter(entry=>entry.id!==id);
-  log("restore","恢复："+item.name);
-  save();
-  renderAll();
-  toast("已恢复");
-}
-function permanentDelete(id){
-  const item=state.trash.find(entry=>entry.id===id);
-  if(!item||!confirm("永久删除「"+item.name+"」？这就找不回来了。")) return;
-  state.trash=state.trash.filter(entry=>entry.id!==id);
-  log("purge","永久删除："+item.name);
-  save();
-  renderTrash();
-  toast("已永久删除");
-}
-function emptyTrash(){
-  if(!state.trash.length){toast("回收站是空的");return}
-  if(!confirm("清空回收站？清掉就找不回来了。")) return;
-  const count=state.trash.length;
-  state.trash=[];
-  log("purge","清空回收站 "+count+" 条");
-  save();
-  renderAll();
-  toast("回收站已清空");
-}
-function purgeExpired(manual){
-  const days=Number(state.config.retention||0);
-  if(!days){if(manual) toast("自动清理是关的");return false}
-  const cutoff=Date.now()-days*86400000;
-  const keep=[];
-  let dropped=0;
-  state.trash.forEach(item=>{
-    const time=new Date(item.deletedAt).getTime();
-    if(!Number.isNaN(time)&&time<cutoff) dropped++;
-    else keep.push(item);
-  });
-  if(!dropped){if(manual) toast("没有过期的");return false}
-  state.trash=keep;
-  log("purge","清理过期 "+dropped+" 条");
-  if(manual){save();renderTrash();toast("清掉了 "+dropped+" 条")}
-  return true;
-}
+
+
+
+
 
 function renderAnalytics(){
   const articles=state.articles;
@@ -2207,10 +2421,15 @@ function renderAnalytics(){
       ["未归档",articles.filter(a=>!a.archived).length],
       ["草稿",articles.filter(a=>!a.archived&&a.status==="draft").length],
       ["已归档",articles.filter(a=>a.archived).length],
-      ["旧版本",state.versions.length],
+      ["旧版本",state.versions.length+readResetHistory().length],
       ["回收站",state.trash.length],
       ["标签",state.tags.length]
     ].map(item=>'<div class="stat"><div class="stat-label">'+item[0]+'</div><div class="stat-num">'+item[1]+"</div></div>").join("");
+  }
+  const versions=document.getElementById("versionList");
+  if(versions){
+    const rows=readResetHistory().map(libraryHistoryRow).join("")+state.versions.map(versionRow).join("");
+    versions.innerHTML=rows||empty("还没有旧版本");
   }
   const cats=document.getElementById("analyticsCats");
   if(cats) cats.innerHTML=state.categories.map(c=>'<div class="setting-line"><span>'+esc(c.icon||"")+" "+esc(c.name)+"</span><b>"+articles.filter(a=>a.categoryId===c.id).length+"</b></div>").join("")||empty("还没有分类");
@@ -2231,6 +2450,8 @@ function renderSettings(){
   fields.forEach(([id,value])=>{const el=document.getElementById(id);if(el) el.value=value??""});
   setSwitch("swStats",cfg.showStats);
   setSwitch("swLog",cfg.showLog);
+  renderArchiveStatus();
+  renderExportFiles();
   const box=document.getElementById("navigationManager");
   if(!box) return;
   const builtin=state.navigation.filter(item=>item.view!=="custom").sort((a,b)=>a.order-b.order).map(item=>'<div class="setting-line"><div class="setting-info"><strong>'+esc(item.icon||"")+" "+esc(item.label)+'</strong></div><button class="btn" type="button" data-act="nav-toggle" data-id="'+esc(item.id)+'">'+(item.visible===false?"显示":"隐藏")+"</button></div>").join("");
@@ -2254,6 +2475,35 @@ function saveBranding(){
   save();
   renderAll();
   toast("已保存");
+}
+function typeSize(n,min,max,fallback){
+  n=Number(n);
+  if(!Number.isFinite(n)) n=fallback;
+  return Math.max(min,Math.min(max,Math.round(n)));
+}
+function applyTypeSize(title,body){
+  title=typeSize(title,18,40,26);
+  body=typeSize(body,14,28,17);
+  document.documentElement.style.setProperty("--title-size",title+"px");
+  document.documentElement.style.setProperty("--body-size",body+"px");
+  const titleLabel=document.getElementById("titleSizeLabel");
+  const bodyLabel=document.getElementById("bodySizeLabel");
+  const titleInput=document.getElementById("titleSize");
+  const bodyInput=document.getElementById("bodySize");
+  if(titleLabel) titleLabel.textContent=title+"px";
+  if(bodyLabel) bodyLabel.textContent=body+"px";
+  if(titleInput&&document.activeElement!==titleInput) titleInput.value=String(title);
+  if(bodyInput&&document.activeElement!==bodyInput) bodyInput.value=String(body);
+}
+function previewTypeSize(){
+  applyTypeSize(document.getElementById("titleSize").value,document.getElementById("bodySize").value);
+}
+function saveTypeSize(){
+  state.config.titleSize=typeSize(document.getElementById("titleSize").value,18,40,26);
+  state.config.bodySize=typeSize(document.getElementById("bodySize").value,14,28,17);
+  state.config.reading=state.config.bodySize;
+  applyTypeSize(state.config.titleSize,state.config.bodySize);
+  save();
 }
 function saveAppearance(){
   state.config.theme=document.getElementById("cfgTheme").value;
@@ -2305,12 +2555,15 @@ function moveNav(id,dir){
   save();
   renderSettings();
 }
-function deleteNav(id){
+async function deleteNav(id){
   const item=state.navigation.find(nav=>nav.id===id&&nav.view==="custom");
-  if(!item||!confirm("删除导航「"+item.label+"」？")) return;
+  if(!item) return;
+  await ensureWritableArchive(true);
+  if(!confirm("删除导航「"+item.label+"」？")) return;
+  const copy=JSON.parse(JSON.stringify(item));
   state.navigation=state.navigation.filter(nav=>nav.id!==id);
-  state.trash.unshift({id:uid("trash"),type:"navigation",name:item.label,deletedAt:now(),data:item});
-  log("delete","删除导航："+item.label);
+  await rememberTrash("navigation",copy.label,copy);
+  log("delete","删除导航："+copy.label);
   save();
   renderSettings();
 }
@@ -2333,6 +2586,7 @@ function librarySnapshot(){
   return JSON.parse(JSON.stringify(state));
 }
 function applyLibrary(data){
+  const previous=state;
   clearTimeout(draftTimer);
   selected.clear();
   documentDraft=null;
@@ -2344,49 +2598,77 @@ function applyLibrary(data){
   state=data;
   repaired=false;
   normalize();
-  save();
+  if(!save()){
+    state=previous;
+    repaired=false;
+    normalize();
+    applyConfig();
+    renderAll();
+    return false;
+  }
   renderAll();
   showView("home");
+  return true;
 }
-function exportData(){
-  const copy=librarySnapshot();
-  copy.exportedAt=now();
-  copy.schema=4;
-  const blob=new Blob([JSON.stringify(copy,null,2)],{type:"application/json"});
+function flushDraft(){
+  if(documentDraft?.dirty&&(document.getElementById("nodeTitle")?.value||"").trim()) saveDocumentNode(true);
+}
+function downloadBlob(blob,name){
   const link=document.createElement("a");
   link.href=URL.createObjectURL(blob);
-  link.download="ARKKNOWLEDGE_"+new Date().toISOString().slice(0,10)+".json";
+  link.download=name;
   document.body.appendChild(link);
   link.click();
   link.remove();
   setTimeout(()=>URL.revokeObjectURL(link.href),1000);
-  log("export","导出了备份");
+}
+
+function sendableHtml(){
+  const page=pristine.cloneNode(true);
+  const head=page.querySelector("head");
+  const body=page.querySelector("body");
+  [...head.children].forEach(el=>{
+    if(!/^(META|TITLE|LINK|STYLE)$/.test(el.tagName)||(el.tagName==="STYLE"&&el.attributes.length)) el.remove();
+  });
+  [...body.children].forEach(el=>{
+    const ours=el.classList.contains("app")||["modalBg","commandBg","toast"].includes(el.id)||(el.tagName==="SCRIPT"&&!el.hasAttribute("type")&&!el.hasAttribute("src"));
+    if(!ours) el.remove();
+  });
+  const copy=librarySnapshot();
+  copy.versions=[];
+  copy.trash=[];
+  copy.logs=[];
+  copy.recent=[];
+  const data=document.createElement("script");
+  data.type="application/json";
+  data.id="kb-data";
+  data.textContent=JSON.stringify({id:uid("pack"),time:now(),state:copy}).replace(/</g,"\\u003c");
+  body.insertBefore(data,[...body.children].find(el=>el.tagName==="SCRIPT"&&!el.hasAttribute("type"))||null);
+  return "<!DOCTYPE html>\n"+page.outerHTML;
+}
+function htmlFileName(){
+  let name="";
+  try{name=decodeURIComponent(String(location.pathname||"").split("/").pop()||"")}catch(e){name=""}
+  if(!/\.html?$/i.test(name)) name=(state.config.name||"ARKKNOWLEDGE")+".html";
+  return name.replace(/[\\/:*?"<>|]/g,"_");
+}
+function exportHtml(){
+  flushDraft();
+  downloadBlob(new Blob([sendableHtml()],{type:"text/html"}),htmlFileName());
+  log("export","导出了 HTML");
   save();
-  toast("备份已下载");
+  toast("HTML 已下载，发出去就是现在的内容");
 }
-function importData(file){
-  const input=document.getElementById("importFile");
-  if(!file){if(input) input.value="";return}
-  const reader=new FileReader();
-  reader.onload=()=>{
-    if(input) input.value="";
-    try{
-      let text=String(reader.result||"");
-      if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
-      const data=JSON.parse(text);
-      if(!data||typeof data!=="object"||Array.isArray(data)||!Array.isArray(data.articles)) throw new Error("bad");
-      if(!confirm("导入会用这份 JSON 换掉现在的内容，继续？")) return;
-      applyLibrary(data);
-      toast("导入好了");
-    }catch(e){toast("这个文件读不了")}
-  };
-  reader.readAsText(file);
+
+
+
+function libraryKey(data){
+  return JSON.stringify([data.articles,data.categories,data.tags,data.navigation,data.config]);
 }
-function resetData(){
-  if(!confirm("恢复示例数据？现在的知识、分类和设置会被换掉。")) return;
-  applyLibrary(defaults());
-  toast("已换回示例数据");
-}
+
+
+
+
 
 function openModal(title,body,okText,onOk){
   document.getElementById("modal").innerHTML='<div class="modal-head"><b>'+esc(title)+'</b><button class="icon-btn" type="button" onclick="closeModal()">×</button></div><div class="modal-body">'+body+'</div><div class="modal-foot"><button class="btn" type="button" onclick="closeModal()">取消</button><button class="btn primary" type="button" id="modalOk">'+esc(okText||"确定")+"</button></div>";
@@ -2422,9 +2704,10 @@ function renderCommands(reset){
     ["回收站","",()=>showView("trash")],
     ["统计","",()=>showView("analytics")],
     ["设置","",()=>showView("settings")],
-    ["导出备份","",exportData],
-    ["导入备份","",()=>document.getElementById("importFile").click()],
-    ["恢复示例","",resetData],
+    ["导出 JSON","",exportData],
+    ["导入 JSON","",chooseImport],
+    ["直接恢复","",restoreBuiltIn],
+    ["选择文件夹","",resetData],
     ["切换深浅色","",toggleTheme]
   ].filter(item=>!q||item[0].toLowerCase().includes(q)||item[1].toLowerCase().includes(q));
   if(q){
@@ -2473,6 +2756,9 @@ function handleAction(el){
   else if(act==="copy-link") copyArticleLink(id);
   else if(act==="print-article") window.print();
   else if(act==="restore-ver") restoreVersion(id);
+  else if(act==="restore-lib") restoreLibraryHistory(id);
+  else if(act==="delete-lib") deleteLibraryHistory(id);
+  else if(act==="delete-ver") deleteVersion(id);
   else if(act==="select-node") selectDocumentNode(el.dataset.article,el.dataset.node);
   else if(act==="toggle-branch") toggleDocumentBranch(el.dataset.key);
   else if(act==="add-child") addDocumentNode(el.dataset.article,el.dataset.node,"child");
@@ -2493,6 +2779,8 @@ function handleAction(el){
   else if(act==="delete-tag") deleteTag(id);
   else if(act==="restore-trash") restoreTrash(id);
   else if(act==="purge-trash") permanentDelete(id);
+  else if(act==="use-sample") useSample(id);
+  else if(act==="restore-builtin") restoreBuiltIn();
   else if(act==="nav-toggle") toggleNavVisible(id);
   else if(act==="edit-nav") openNavEditor(id);
   else if(act==="move-nav") moveNav(id,Number(el.dataset.dir));
@@ -2519,7 +2807,10 @@ document.getElementById("knowledgeTable").addEventListener("change",event=>{
   if(box) selectArticle(box.dataset.id,box.checked);
 });
 document.getElementById("themeBtn").addEventListener("click",toggleTheme);
-document.getElementById("importFile").addEventListener("change",event=>importData(event.target.files&&event.target.files[0]));
+document.getElementById("importFile").addEventListener("change",event=>{
+  const file=event.target.files&&event.target.files[0];
+  importData(file,Promise.resolve(!!(archiveRoot&&samePage(boundHref))));
+});
 const globalSearch=document.getElementById("globalSearch");
 globalSearch.addEventListener("input",()=>{
   renderSearchDrop(globalSearch.value);
@@ -2537,7 +2828,7 @@ document.querySelectorAll(".settings-tab").forEach(btn=>btn.addEventListener("cl
 }));
 document.addEventListener("keydown",event=>{
   const commandOpen=document.getElementById("commandBg").classList.contains("show");
-  const typing=event.target.closest("input,textarea,select");
+  const typing=event.target instanceof Element&&event.target.closest("input,textarea,select");
   if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){
     event.preventDefault();
     if(commandOpen) closeCommand(); else openCommand();
@@ -2567,10 +2858,1231 @@ window.addEventListener("hashchange",()=>{
   const id=articleIdFromHash();
   if(id) openArticle(id);
 });
+window.addEventListener("storage",event=>{
+  if(!fileMeta.fileId) return;
+  if(event.key===historyStorageKey()){renderAnalytics();return}
+  if(event.key!==FILE_PREFIX+fileMeta.fileId||!event.newValue) return;
+  const env=parseEnvelope(event.newValue);
+  if(!env||!env.state||(env.place&&env.place!==pageIdentity())) return;
+  state=env.state;
+  fileMeta.revision=env.revision;
+  repaired=false;
+  normalize();
+  const view=(document.querySelector(".view.active")||{}).id||"";
+  renderAll();
+  if(view==="view-article"&&currentArticle){
+    if(articleById(currentArticle)) openArticle(currentArticle,{record:false});
+    else showView("home");
+  }else if(view==="view-home-reader"&&homeReaderStack.length){
+    const last=homeReaderStack[homeReaderStack.length-1];
+    const article=articleById(last.articleId);
+    const path=article?nodePath(article,last.nodeId):[];
+    if(path.length) renderHomeNode(article,path[path.length-1],path,true);
+    else showView("home");
+  }else if(view==="view-document-manager"&&!documentDraft?.dirty){
+    renderDocumentNodeEditor();
+  }
+});
 window.addEventListener("beforeunload",event=>{
   if(documentDraft?.dirty){event.preventDefault();event.returnValue=""}
 });
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{if(state.config.theme==="system") applyConfig()});
+
+const DIR_ARCHIVE="存档";
+const DIR_CURRENT="现有版本";
+const DIR_HISTORY="历史版本";
+const DIR_TRASH="回收站";
+const DIR_SAMPLE="示例";
+const CURRENT_FILE="当前.json";
+const BIND_FILE="本页.json";
+let pendingCarry=[];
+let historyItems=[];
+let sampleNames=[];
+let archiveRoot=null;
+let knownHandle=null;
+let boundHref="";
+let archiveMigrated=false;
+let archiveBootPromise=null;
+let saveQueued=false;
+let kbExternal=false;
+const snapshotCache=new Map();
+let archiveChain=Promise.resolve();
+let archiveDbPromise=null;
+
+function enqueue(fn){
+  const run=archiveChain.then(fn,fn);
+  archiveChain=run.then(()=>{},()=>{});
+  return run;
+}
+function archiveDb(){
+  if(!window.indexedDB) return Promise.reject(new Error("no idb"));
+  if(!archiveDbPromise){
+    archiveDbPromise=new Promise((resolve,reject)=>{
+      const req=indexedDB.open("ARKKNOWLEDGE_ARCHIVE",1);
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        if(!db.objectStoreNames.contains("files")) db.createObjectStore("files");
+        if(!db.objectStoreNames.contains("meta")) db.createObjectStore("meta");
+      };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+  }
+  return archiveDbPromise;
+}
+function idbGet(store,key){
+  return archiveDb().then(db=>new Promise((resolve,reject)=>{
+    const rq=db.transaction(store,"readonly").objectStore(store).get(key);
+    rq.onsuccess=()=>resolve(rq.result);
+    rq.onerror=()=>reject(rq.error);
+  }));
+}
+function idbSet(store,key,value){
+  return archiveDb().then(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(store,"readwrite");
+    tx.objectStore(store).put(value,key);
+    tx.oncomplete=()=>resolve(true);
+    tx.onerror=()=>reject(tx.error);
+  }));
+}
+function idbDelete(store,key){
+  return archiveDb().then(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(store,"readwrite");
+    tx.objectStore(store).delete(key);
+    tx.oncomplete=()=>resolve(true);
+    tx.onerror=()=>reject(tx.error);
+  }));
+}
+function idbAll(store){
+  return archiveDb().then(db=>new Promise((resolve,reject)=>{
+    const rows=[];
+    const rq=db.transaction(store,"readonly").objectStore(store).openCursor();
+    rq.onsuccess=()=>{
+      const cursor=rq.result;
+      if(!cursor){resolve(rows);return}
+      rows.push({key:String(cursor.key),value:cursor.value});
+      cursor.continue();
+    };
+    rq.onerror=()=>reject(rq.error);
+  }));
+}
+function fileStamp(){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
+}
+function safeFile(name){
+  const s=String(name||"未命名").replace(/[\\/:*?\x22<>|]/g,"_").replace(/\s+/g," ").trim().slice(0,40);
+  return s||"未命名";
+}
+function sampleLabel(name){return String(name||"").replace(/\.json$/i,"")}
+function historyFileName(kind,title){
+  return (kind==="library"?"整库":"文章")+"_"+safeFile(title)+"_"+fileStamp()+"_"+Math.random().toString(36).slice(2,6)+".json";
+}
+function classifyHistory(doc){
+  if(!doc||typeof doc!=="object") return "";
+  if(doc.kind==="library"||doc.kind==="article") return doc.kind;
+  const lib=asLibrary(doc.snapshot)||asLibrary(doc);
+  if(doc.snapshot&&lib) return "library";
+  if(doc.snapshot) return "article";
+  if(lib) return "library";
+  return "";
+}
+function trashFileName(type,title){
+  const label=({article:"知识",category:"分类",tag:"标签",navigation:"导航",version:"旧版本",library:"整库"})[type]||"条目";
+  return label+"_"+safeFile(title)+"_"+fileStamp()+"_"+Math.random().toString(36).slice(2,6)+".json";
+}
+function asLibrary(data){
+  if(!data||typeof data!=="object"||Array.isArray(data)) return null;
+  if(Array.isArray(data.articles)) return data;
+  if(data.state&&Array.isArray(data.state.articles)) return data.state;
+  if(data.snapshot&&Array.isArray(data.snapshot.articles)) return data.snapshot;
+  return null;
+}
+function snapshotForFile(source){
+  const copy=JSON.parse(JSON.stringify(source||{}));
+  delete copy.exportedAt;
+  delete copy.schema;
+  delete copy.libraryHistory;
+  delete copy.kind;
+  if(Array.isArray(copy.versions)) copy.versions=copy.versions.map(v=>{
+    const row={id:v.id,articleId:v.articleId||"",time:v.time||"",title:v.title||(v.snapshot&&v.snapshot.title)||"",file:v.file||""};
+    if(!row.file&&v.snapshot) row.snapshot=v.snapshot;
+    return row;
+  });
+  if(Array.isArray(copy.trash)) copy.trash=copy.trash.map(t=>{
+    const row={id:t.id,type:t.type,name:t.name,deletedAt:t.deletedAt,file:t.file||""};
+    if(!row.file&&t.data) row.data=t.data;
+    return row;
+  });
+  return copy;
+}
+async function hasChild(dir,name){
+  try{await dir.getDirectoryHandle(name);return true}catch(e){return false}
+}
+async function resolveArchiveRoot(picked){
+  if(picked.name===DIR_ARCHIVE||await hasChild(picked,DIR_CURRENT)) return picked;
+  if(await hasChild(picked,DIR_ARCHIVE)) return picked.getDirectoryHandle(DIR_ARCHIVE);
+  return picked.getDirectoryHandle(DIR_ARCHIVE,{create:true});
+}
+async function ensureDirs(){
+  if(!archiveRoot) return;
+  await archiveRoot.getDirectoryHandle(DIR_CURRENT,{create:true});
+  await archiveRoot.getDirectoryHandle(DIR_HISTORY,{create:true});
+  await archiveRoot.getDirectoryHandle(DIR_TRASH,{create:true});
+  await archiveRoot.getDirectoryHandle(DIR_SAMPLE,{create:true});
+}
+async function bucketDir(bucket){
+  if(!archiveRoot) throw new Error("no root");
+  return archiveRoot.getDirectoryHandle(bucket,{create:true});
+}
+async function writeText(bucket,name,text){
+  const dir=await bucketDir(bucket);
+  const fh=await dir.getFileHandle(name,{create:true});
+  const writable=await fh.createWritable();
+  await writable.write(text);
+  await writable.close();
+}
+async function writeJson(bucket,name,obj){
+  await writeText(bucket,name,JSON.stringify(obj,null,2));
+}
+async function readText(bucket,name){
+  const dir=await bucketDir(bucket);
+  const fh=await dir.getFileHandle(name);
+  return await (await fh.getFile()).text();
+}
+async function readJson(bucket,name){
+  try{return JSON.parse(await readText(bucket,name))}catch(e){return null}
+}
+async function removeFile(bucket,name){
+  if(!name||(bucket===DIR_CURRENT&&name===CURRENT_FILE)) return;
+  try{
+    const dir=await bucketDir(bucket);
+    await dir.removeEntry(name);
+  }catch(e){}
+}
+async function listJson(bucket){
+  const dir=await bucketDir(bucket);
+  const rows=[];
+  for await(const [name,handle] of dir.entries()){
+    if(handle.kind!=="file"||!/\.json$/i.test(name)||name==="目录.json") continue;
+    let time=0;
+    try{time=(await handle.getFile()).lastModified||0}catch(e){}
+    rows.push({name:name,time:time});
+  }
+  rows.sort((a,b)=>b.time-a.time||b.name.localeCompare(a.name));
+  return rows.map(row=>row.name);
+}
+async function bindKind(bind, pickedName){
+  const here=pageIdentity();
+  if(!bind||!bind.href) return "empty";
+  if(samePage(bind.href)) return "match";
+  let other=null;
+  try{other=await idbGet("meta","root:"+bind.href)}catch(e){other=null}
+  if(other&&archiveRoot&&typeof other.isSameEntry==="function"){
+    try{if(await other.isSameEntry(archiveRoot)) return "foreign"}catch(e){}
+    return "copy";
+  }
+  if(pickedName&&pickedName===folderLabel()) return "copy";
+  return "foreign";
+}
+async function readBind(){
+  if(!archiveRoot) return null;
+  try{
+    const fh=await archiveRoot.getFileHandle(BIND_FILE);
+    const data=JSON.parse(await (await fh.getFile()).text());
+    if(!data||typeof data!=="object") return null;
+    return data;
+  }catch(e){return null}
+}
+async function writeBind(folderName){
+  if(!archiveRoot) return false;
+  const existing=await readBind();
+  const keep=existing&&existing.href===pageIdentity()?existing.id:"";
+  const body={id:keep||uid("inst"),href:pageIdentity(),file:pagePath(),folder:folderName||folderLabel(),boundAt:now()};
+  const fh=await archiveRoot.getFileHandle(BIND_FILE,{create:true});
+  const writable=await fh.createWritable();
+  await writable.write(JSON.stringify(body,null,2));
+  await writable.close();
+  return body;
+}
+async function htmlStampIn(dir){
+  try{
+    const fh=await dir.getFileHandle(pagePath());
+    const text=await (await fh.getFile()).text();
+    const matched=text.match(/<script\b[^>]*\bid=["']kb-place["'][^>]*>([\s\S]*?)<\/script>/i);
+    if(!matched) return "";
+    try{
+      const data=JSON.parse(matched[1]);
+      return data&&data.href?String(data.href):"";
+    }catch(e){return ""}
+  }catch(e){return null}
+}
+async function pageDirMatches(dir){
+  if(!dir||typeof dir.getFileHandle!=="function") return false;
+  const stamp=await htmlStampIn(dir);
+  if(stamp===null) return false;
+  if(stamp&&samePage(stamp)) return true;
+  return dir.name===folderLabel();
+}
+async function stampPageFile(dir, record){
+  const ident=pageIdentity();
+  const fh=await dir.getFileHandle(pagePath());
+  const text=await (await fh.getFile()).text();
+  const payload=JSON.stringify({id:(record&&record.id)||"",href:(record&&record.href)||ident,folder:(record&&record.folder)||folderLabel()}).replace(/</g,"\\u003c");
+  const next=text.replace(/(<script\b[^>]*\bid=["']kb-place["'][^>]*>)[\s\S]*?(<\/script>)/i,"$1"+payload+"$2");
+  if(next===text) return false;
+  const writable=await fh.createWritable();
+  await writable.write(next);
+  await writable.close();
+  const node=document.getElementById("kb-place");
+  if(node) node.textContent=payload;
+  return true;
+}
+function clearArchive(){
+  archiveRoot=null;
+  boundHref="";
+}
+async function findHandle(){
+  const here=pageIdentity();
+  const rec=readPlaceRecord();
+  const keys=[];
+  if(!rec.href||samePage(rec.href)){
+    if(rec.id) keys.push("inst:"+rec.id);
+  }
+  keys.push("root:"+here);
+  for(const key of keys){
+    try{
+      const handle=await idbGet("meta",key);
+      if(handle&&typeof handle.queryPermission==="function") return handle;
+    }catch(e){}
+  }
+  return null;
+}
+async function claimHandle(handle){
+  if(!handle||typeof handle.getFileHandle!=="function") return false;
+  const savedRoot=archiveRoot;
+  const savedBound=boundHref;
+  archiveRoot=handle;
+  let bind=null;
+  try{bind=await readBind()}catch(e){bind=null}
+  if(!bind||!samePage(bind.href)){
+    archiveRoot=savedRoot;
+    boundHref=savedBound;
+    return false;
+  }
+  boundHref=pageIdentity();
+  try{await ensureDirs()}catch(e){}
+  try{
+    if(bind.id) await idbSet("meta","inst:"+bind.id,handle);
+    await idbSet("meta","root:"+pageIdentity(),handle);
+  }catch(e){}
+  return true;
+}
+async function attachArchive(ask){
+  if(archiveRoot&&samePage(boundHref)) return true;
+  const keyed=await findHandle();
+  if(keyed&&typeof keyed.queryPermission==="function"){
+    let perm="prompt";
+    try{perm=await keyed.queryPermission({mode:"readwrite"})}catch(e){perm="prompt"}
+    if(perm!=="granted"&&ask){
+      try{perm=await keyed.requestPermission({mode:"readwrite"})}catch(e){perm="prompt"}
+    }
+    if(perm==="granted"&&await claimHandle(keyed)) return true;
+  }
+  let rows=[];
+  try{rows=await idbAll("meta")}catch(e){rows=[]}
+  for(const row of rows){
+    const handle=row.value;
+    if(!handle||typeof handle.queryPermission!=="function") continue;
+    let perm="prompt";
+    try{perm=await handle.queryPermission({mode:"readwrite"})}catch(e){continue}
+    if(perm!=="granted") continue;
+    if(await claimHandle(handle)) return true;
+  }
+  return false;
+}
+async function permissionOf(handle, ask){
+  if(!handle||typeof handle.queryPermission!=="function") return "prompt";
+  let perm="prompt";
+  try{perm=await handle.queryPermission({mode:"readwrite"})}catch(e){return "prompt"}
+  if(perm!=="granted"&&ask){
+    try{perm=await handle.requestPermission({mode:"readwrite"})}catch(e){perm="prompt"}
+  }
+  return perm;
+}
+async function rememberPageDir(dir){
+  if(!dir||typeof dir.getFileHandle!=="function") return;
+  try{await idbSet("meta","page:"+pageIdentity(),dir)}catch(e){}
+}
+async function readPageDir(){
+  try{
+    const dir=await idbGet("meta","page:"+pageIdentity());
+    if(dir&&typeof dir.getFileHandle==="function") return dir;
+  }catch(e){}
+  return null;
+}
+async function findPageDir(ask){
+  const stored=await readPageDir();
+  if(stored&&await permissionOf(stored, ask)==="granted"&&await pageDirMatches(stored)) return stored;
+  let rows=[];
+  try{rows=await idbAll("meta")}catch(e){return null}
+  for(const row of rows){
+    const handle=row.value;
+    if(!handle||typeof handle.getFileHandle!=="function") continue;
+    let perm="prompt";
+    try{perm=await handle.queryPermission({mode:"readwrite"})}catch(e){continue}
+    if(perm!=="granted") continue;
+    if(!(await pageDirMatches(handle))) continue;
+    await rememberPageDir(handle);
+    return handle;
+  }
+  return null;
+}
+async function activateArchive(root, pageDir){
+  if(!root||typeof root.getDirectoryHandle!=="function") return false;
+  const savedRoot=archiveRoot;
+  const savedBound=boundHref;
+  archiveRoot=root;
+  let bind=null;
+  try{bind=await readBind()}catch(e){bind=null}
+  const localCopy=!!(pageDir&&pageDir.name===folderLabel());
+  if(bind&&!samePage(bind.href)&&!localCopy){
+    archiveRoot=savedRoot;
+    boundHref=savedBound;
+    return false;
+  }
+  if(bind&&!samePage(bind.href)) bind=null;
+  try{await ensureDirs()}catch(e){
+    archiveRoot=savedRoot;
+    boundHref=savedBound;
+    return false;
+  }
+  let body=bind;
+  if(!body){
+    try{body=await writeBind(folderLabel())}catch(e){body=null}
+  }
+  if(!body){
+    archiveRoot=savedRoot;
+    boundHref=savedBound;
+    return false;
+  }
+  boundHref=pageIdentity();
+  try{
+    await idbSet("meta","root:"+pageIdentity(),archiveRoot);
+    if(body.id) await idbSet("meta","inst:"+body.id,archiveRoot);
+  }catch(e){}
+  if(pageDir){
+    await rememberPageDir(pageDir);
+    try{await stampPageFile(pageDir, body)}catch(e){}
+  }
+  return true;
+}
+async function materializeArchive(ask){
+  if(archiveRoot&&samePage(boundHref)){
+    try{
+      await ensureDirs();
+      if(!(await readBind())) await writeBind(folderLabel());
+      return true;
+    }catch(e){
+      clearArchive();
+    }
+  }
+  if(await attachArchive(!!ask)){
+    try{
+      await ensureDirs();
+      if(!(await readBind())) await writeBind(folderLabel());
+      return true;
+    }catch(e){clearArchive()}
+  }
+  const keyed=await findHandle();
+  if(keyed&&await permissionOf(keyed,!!ask)==="granted"){
+    if(await pageDirMatches(keyed)){
+      try{
+        const root=await keyed.getDirectoryHandle(DIR_ARCHIVE,{create:true});
+        if(await activateArchive(root,keyed)) return true;
+      }catch(e){}
+    }
+    try{
+      if(keyed.name===DIR_ARCHIVE||await hasChild(keyed,DIR_CURRENT)||await hasChild(keyed,DIR_HISTORY)||await hasChild(keyed,DIR_TRASH)){
+        if(await activateArchive(keyed,null)) return true;
+      }
+    }catch(e){}
+  }
+  const pageDir=await findPageDir(!!ask);
+  if(!pageDir) return false;
+  try{
+    const root=await pageDir.getDirectoryHandle(DIR_ARCHIVE,{create:true});
+    return await activateArchive(root,pageDir);
+  }catch(e){
+    return false;
+  }
+}
+async function ensureWritableArchive(ask){
+  return materializeArchive(!!ask);
+}
+async function pickFolder(){
+  if(!window.showDirectoryPicker){
+    toast("请用 Chrome 或 Edge 打开，才能弹出文件夹窗口");
+    return null;
+  }
+  const ident=pageIdentity();
+  const pickerId=("p"+hash128(ident)).slice(0,32);
+  let picked=null;
+  try{picked=await window.showDirectoryPicker({mode:"readwrite",id:pickerId})}
+  catch(e){
+    if(e&&e.name==="AbortError") return null;
+    try{picked=await window.showDirectoryPicker({mode:"readwrite"})}
+    catch(err){
+      if(!(err&&err.name==="AbortError")) toast("文件夹窗口没打开，请再点一次");
+      return null;
+    }
+  }
+  if(!picked) return null;
+  if(picked.name==="示例"||picked.name==="历史版本"||picked.name==="回收站"||picked.name==="现有版本"){
+    toast("请选这一份 html 所在的文件夹，或选它旁边的「存档」");
+    return null;
+  }
+  const savedRoot=archiveRoot;
+  const savedBound=boundHref;
+  try{
+    const root=await resolveArchiveRoot(picked);
+    archiveRoot=root;
+    const kind=await bindKind(await readBind(), picked.name);
+    if(kind==="foreign"){
+      archiveRoot=savedRoot;
+      boundHref=savedBound;
+      toast("「"+picked.name+"」属于另一份页面，这一份不能用它");
+      return null;
+    }
+    await ensureDirs();
+    const body=await writeBind(picked.name===DIR_ARCHIVE?folderLabel():picked.name);
+    const pageDir=picked.name===DIR_ARCHIVE?null:picked;
+    if(pageDir){
+      try{await stampPageFile(pageDir, body)}catch(err){}
+      try{await rememberPageDir(pageDir)}catch(err){}
+      knownHandle=pageDir;
+    }else knownHandle=archiveRoot;
+    boundHref=ident;
+    let remembered=false;
+    try{await idbSet("meta","inst:"+body.id,archiveRoot);remembered=true}catch(err){}
+    try{await idbSet("meta","root:"+ident,archiveRoot);remembered=true}catch(err){}
+    if(!remembered) toast("浏览器没有记住这个文件夹，下次还要点一次");
+    return archiveRoot;
+  }catch(e){
+    archiveRoot=savedRoot;
+    boundHref=savedBound;
+    toast("这个文件夹写不了");
+    return null;
+  }
+}
+function writeLocal(key,text){
+  try{localStorage.setItem(key,text);return true}catch(e){}
+  freeLocalBulk();
+  try{localStorage.setItem(key,text);return true}catch(e){}
+  let backup=null;
+  try{backup=localStorage.getItem(key)}catch(e){}
+  try{localStorage.removeItem(key)}catch(e){}
+  try{localStorage.setItem(key,text);return true}catch(e){}
+  if(backup!=null){try{localStorage.setItem(key,backup)}catch(err){}}
+  return false;
+}
+function freeLocalBulk(){
+  try{localStorage.removeItem(historyStorageKey())}catch(e){}
+}
+function persistNow(){
+  const path=storageSlot();
+  const map=readPathMap();
+  if(map[path]!==fileMeta.fileId){
+    map[path]=fileMeta.fileId;
+    if(!writeLocal(PATH_MAP_KEY,JSON.stringify(map))) return false;
+  }
+  fileMeta.revision=(fileMeta.revision||0)+1;
+  const payload={fileId:fileMeta.fileId,revision:fileMeta.revision,origin:fileMeta.origin,place:pageIdentity(),state:snapshotForFile(state)};
+  if(!writeLocal(FILE_PREFIX+fileMeta.fileId,JSON.stringify(payload))){
+    fileMeta.revision=Math.max(0,fileMeta.revision-1);
+    return false;
+  }
+  refreshChrome();
+  return true;
+}
+function save(){
+  if(!archiveMigrated){saveQueued=true;refreshChrome();return true}
+  const ok=persistNow();
+  enqueue(async()=>{
+    const attached=await materializeArchive(false);
+    if(attached){
+      try{await parkInline()}catch(e){}
+      await writeCurrent();
+      try{await scanAll()}catch(e){}
+      renderAnalytics();
+      renderTrash();
+      renderExportFiles();
+    }else if(!ok) toast("浏览器空间满了。请在设置里选择本页所在的文件夹，存档会建在旁边。");
+  });
+  return ok||!!archiveRoot;
+}
+async function writeCurrent(){
+  if(!(await materializeArchive(false))) return false;
+  const bind=await readBind();
+  if(!bind||!samePage(bind.href)) return false;
+  try{
+    await writeJson(DIR_CURRENT,CURRENT_FILE,snapshotForFile(state));
+    return true;
+  }catch(e){return false}
+}
+async function moveCurrentToHistory(){
+  if(!(await materializeArchive(false))) return;
+  const body=snapshotForFile(state);
+  const title=(body.config&&body.config.name)||"当前";
+  await writeJson(DIR_HISTORY,historyFileName("library",title),{kind:"library",id:uid("lib"),time:now(),title:title,snapshot:body});
+}
+async function parkInline(){
+  if(!archiveRoot) return;
+  for(const version of (state.versions||[]).slice()){
+    if(!version||!version.snapshot) continue;
+    const title=version.title||version.snapshot.title||"未命名";
+    const name=version.file&&/\.json$/i.test(version.file)?version.file:historyFileName("article",title);
+    await writeJson(DIR_HISTORY,name,{kind:"article",id:version.id||uid("ver"),articleId:version.articleId||"",time:version.time||now(),title:title,snapshot:version.snapshot});
+    version.file=name;
+    version.title=title;
+    delete version.snapshot;
+  }
+  for(const item of pendingCarry.slice()){
+    const lib=item&&asLibrary(item.snapshot||item);
+    if(!lib) continue;
+    await writeJson(DIR_HISTORY,historyFileName("library","整库"),{kind:"library",id:item.id||uid("lib"),time:item.time||now(),title:"整库",snapshot:snapshotForFile(lib)});
+  }
+  pendingCarry=[];
+  freeLocalBulk();
+  for(const item of (state.trash||[]).slice()){
+    if(!item||item.file||!item.data) continue;
+    const name=trashFileName(item.type,item.name||"未命名");
+    await writeJson(DIR_TRASH,name,{kind:"trash",id:item.id,type:item.type,name:item.name,deletedAt:item.deletedAt||now(),data:item.data});
+    item.file=name;
+    item.data={id:(item.data&&item.data.id)||""};
+  }
+}
+async function parkInsideLibrary(lib){
+  if(!lib||!archiveRoot) return;
+  if(Array.isArray(lib.versions)){
+    for(const version of lib.versions){
+      if(!version||!version.snapshot) continue;
+      const title=version.title||version.snapshot.title||"未命名";
+      const name=version.file&&/\.json$/i.test(version.file)?version.file:historyFileName("article",title);
+      await writeJson(DIR_HISTORY,name,{kind:"article",id:version.id||uid("ver"),articleId:version.articleId||"",time:version.time||now(),title:title,snapshot:version.snapshot});
+    }
+  }
+  if(Array.isArray(lib.libraryHistory)){
+    for(const item of lib.libraryHistory){
+      const snap=item&&asLibrary(item.snapshot||item);
+      if(!snap) continue;
+      await writeJson(DIR_HISTORY,historyFileName("library","整库"),{kind:"library",id:(item&&item.id)||uid("lib"),time:(item&&item.time)||now(),title:"整库",snapshot:snapshotForFile(snap)});
+    }
+  }
+  if(Array.isArray(lib.trash)){
+    for(const item of lib.trash){
+      if(!item||!item.data) continue;
+      await writeJson(DIR_TRASH,trashFileName(item.type,item.name||"未命名"),{kind:"trash",id:item.id||uid("trash"),type:item.type,name:item.name,deletedAt:item.deletedAt||now(),data:item.data});
+    }
+  }
+}
+async function ensureDefaultSample(){
+  if(!archiveRoot) return;
+  const names=await listJson(DIR_SAMPLE);
+  if(names.length) {sampleNames=names;return}
+  await writeJson(DIR_SAMPLE,"默认示例.json",snapshotForFile(defaults()));
+  sampleNames=["默认示例.json"];
+}
+async function purgeTrashFiles(){
+  if(!archiveRoot) return;
+  const days=Number(state.config.retention||0);
+  if(!days) return;
+  const cutoff=Date.now()-days*86400000;
+  const names=await listJson(DIR_TRASH);
+  for(const name of names){
+    const doc=await readJson(DIR_TRASH,name);
+    const time=new Date(doc&&(doc.deletedAt||doc.time)||0).getTime();
+    if(!Number.isNaN(time)&&time<cutoff) await removeFile(DIR_TRASH,name);
+  }
+}
+async function scanAll(){
+  if(!archiveRoot) return;
+  const versions=[];
+  const libs=[];
+  for(const name of await listJson(DIR_HISTORY)){
+    const doc=await readJson(DIR_HISTORY,name);
+    if(!doc||typeof doc!=="object") continue;
+    const lib=asLibrary(doc.snapshot)||asLibrary(doc);
+    const kind=classifyHistory(doc);
+    if(!kind) continue;
+    if(kind==="library"){
+      libs.push({id:doc.id||name,file:name,time:doc.time||"",title:doc.title||"整库",kind:"library",count:lib&&Array.isArray(lib.articles)?lib.articles.length:0,titles:""});
+    }else{
+      const snap=doc.snapshot||{};
+      versions.push({id:doc.id||name,file:name,time:doc.time||"",title:doc.title||snap.title||sampleLabel(name),articleId:doc.articleId||snap.id||"",kind:"article"});
+    }
+  }
+  versions.sort((a,b)=>String(b.time).localeCompare(String(a.time)));
+  libs.sort((a,b)=>String(b.time).localeCompare(String(a.time)));
+  state.versions=versions;
+  historyItems=libs;
+  const trash=[];
+  for(const name of await listJson(DIR_TRASH)){
+    const doc=await readJson(DIR_TRASH,name);
+    if(!doc||typeof doc!=="object") continue;
+    const type=doc.kind==="trash"?(doc.type||"version"):(doc.kind==="library"?"library":"version");
+    trash.push({id:doc.id||name,file:name,type:type,name:doc.name||doc.title||sampleLabel(name),deletedAt:doc.deletedAt||doc.time||now(),bucket:DIR_TRASH,data:{id:doc.id||"",file:name}});
+  }
+  trash.sort((a,b)=>String(b.deletedAt).localeCompare(String(a.deletedAt)));
+  state.trash=trash;
+  sampleNames=await listJson(DIR_SAMPLE);
+}
+async function reloadFromDisk(){
+  if(!(await materializeArchive(false))) return false;
+  const kind=await bindKind(await readBind());
+  if(kind==="foreign"){
+    clearArchive();
+    toast("这份存档不是当前页面的，没有读取。");
+    renderArchiveStatus();
+    return false;
+  }
+  await ensureDirs();
+  await parkInline();
+  const cur=await readJson(DIR_CURRENT,CURRENT_FILE);
+  const lib=cur&&asLibrary(cur);
+  if(lib){
+    state=JSON.parse(JSON.stringify(lib));
+    repaired=false;
+    normalize();
+    applyConfig();
+  }else await writeCurrent();
+  await purgeTrashFiles();
+  await scanAll();
+  await ensureDefaultSample();
+  archiveMigrated=true;
+  persistNow();
+  renderAll();
+  renderArchiveStatus();
+  renderExportFiles();
+  return true;
+}
+async function bootJob(){
+  try{await materializeArchive(false)}catch(e){clearArchive()}
+  if(!archiveRoot){
+    try{knownHandle=await findHandle()||await readPageDir()}catch(e){}
+  }else knownHandle=archiveRoot;
+  if(archiveRoot){
+    try{await reloadFromDisk()}catch(e){}
+  }
+  archiveMigrated=true;
+  if(saveQueued){
+    saveQueued=false;
+    if(archiveRoot){try{await writeCurrent()}catch(e){}}
+    else persistNow();
+  }
+  renderArchiveStatus();
+  renderExportFiles();
+  if(archiveRoot){renderAnalytics();renderTrash()}
+}
+function bootArchive(){return enqueue(()=>bootJob())}
+async function connectArchiveFolder(){
+  const root=await pickFolder();
+  if(!root) return null;
+  await enqueue(()=>reloadFromDisk());
+  toast("已使用「"+folderLabel()+"」。其他文件夹不会跟着变。");
+  return root;
+}
+function needsArchiveMigration(){
+  if((state.versions||[]).some(v=>v&&v.snapshot&&!v.file)) return true;
+  if((state.trash||[]).some(item=>item&&item.data&&!item.file)) return true;
+  if(pendingCarry.length) return true;
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(key&&key.endsWith(":resets")){
+        const raw=localStorage.getItem(key);
+        if(raw&&raw!=="[]") return true;
+      }
+    }
+  }catch(e){}
+  return false;
+}
+function pushVersion(article){
+  const snap=JSON.parse(JSON.stringify(article));
+  if(Array.isArray(snap.documentTree)&&snap.documentTree.length) delete snap.content;
+  const last=state.versions.find(v=>v.articleId===article.id);
+  if(last&&snapshotCache.has(last.id)&&JSON.stringify(snapshotCache.get(last.id))===JSON.stringify(snap)) return Promise.resolve(last);
+  const id=uid("ver");
+  const title=snap.title||"未命名";
+  const item={id:id,articleId:article.id,time:now(),title:title,file:""};
+  snapshotCache.set(id,snap);
+  item.snapshot=snap;
+  state.versions.unshift(item);
+  return enqueue(async()=>{
+    if(!(await materializeArchive(false))) return item;
+    const file=historyFileName("article",title);
+    try{
+      await writeJson(DIR_HISTORY,file,{kind:"article",id:id,articleId:article.id,time:item.time,title:title,snapshot:snap});
+      item.file=file;
+      delete item.snapshot;
+    }catch(e){
+      item.file="";
+      item.snapshot=snap;
+    }
+    return item;
+  });
+}
+async function loadVersionSnapshot(version){
+  if(!version) return null;
+  if(version.snapshot) return version.snapshot;
+  if(snapshotCache.has(version.id)) return snapshotCache.get(version.id);
+  if(!version.file||!archiveRoot) return null;
+  const doc=await readJson(DIR_HISTORY,version.file);
+  const snap=doc&&doc.snapshot;
+  if(!snap||Array.isArray(snap.articles)) return null;
+  snapshotCache.set(version.id,snap);
+  return snap;
+}
+async function restoreVersion(verId){
+  const version=state.versions.find(v=>v.id===verId);
+  if(!version) return;
+  const current=articleById(version.articleId);
+  if(!confirm(current?"用这个版本覆盖现在的内容？":"原文不在了，按这份备份加回来？")) return;
+  const raw=await loadVersionSnapshot(version);
+  if(!raw||Array.isArray(raw.articles)){toast("这份 JSON 读不出来");return}
+  if(current) await pushVersion(current);
+  const snap=JSON.parse(JSON.stringify(raw));
+  snap.updatedAt=now();
+  if(current) snap.id=current.id;
+  normalizeArticle(snap);
+  snap.content=documentToMarkdown(snap);
+  if(current){
+    const index=state.articles.findIndex(a=>a.id===current.id);
+    state.articles[index]=snap;
+  }else state.articles.unshift(snap);
+  log("restore","恢复旧版本："+snap.title);
+  save();
+  closeModal();
+  openArticle(snap.id);
+  toast("已恢复到旧版本");
+}
+async function moveHistoryToTrash(item,type){
+  if(!item||!item.file) return false;
+  const doc=await readJson(DIR_HISTORY,item.file);
+  if(!doc) return false;
+  const name=trashFileName(type,item.title||item.name||"未命名");
+  await writeJson(DIR_TRASH,name,{kind:"trash",id:item.id,type:type,name:(item.title||item.name||"未命名")+" · "+fmtFull(item.time),deletedAt:now(),data:doc});
+  await removeFile(DIR_HISTORY,item.file);
+  return true;
+}
+async function deleteVersion(id){
+  const version=state.versions.find(v=>v.id===id);
+  if(!version||!confirm("删除这份旧版本？JSON 会进回收站。")) return;
+  if(archiveRoot&&version.file){
+    const ok=await moveHistoryToTrash(version,"version");
+    if(!ok){toast("没移进回收站");return}
+    await scanAll();
+  }else{
+    state.versions=state.versions.filter(v=>v.id!==id);
+    state.trash.unshift({id:uid("trash"),type:"version",name:(version.title||"未命名")+" · "+fmtFull(version.time),deletedAt:now(),data:version});
+  }
+  log("delete","删除旧版本："+(version.title||"未命名"));
+  save();
+  refreshChrome();
+  renderAnalytics();
+  renderTrash();
+  closeModal();
+  toast("已放进回收站");
+}
+async function clearVersions(){
+  const libs=readResetHistory();
+  const versions=state.versions.slice();
+  if(!versions.length&&!libs.length){toast("没有旧版本");return}
+  if(!confirm("清空全部旧版本？JSON 会留在回收站。")) return;
+  if(archiveRoot){
+    for(const version of versions){
+      if(version.file) await moveHistoryToTrash(version,"version");
+      else if(version.snapshot) await writeJson(DIR_TRASH,trashFileName("version",version.title||"未命名"),{kind:"trash",id:version.id,type:"version",name:version.title||"未命名",deletedAt:now(),data:version});
+    }
+    for(const item of libs){
+      if(item.file) await moveHistoryToTrash(item,"library");
+    }
+    await scanAll();
+  }else{
+    state.versions=[];
+    historyItems=[];
+  }
+  log("delete","清空旧版本 "+(versions.length+libs.length)+" 条");
+  save();
+  refreshChrome();
+  renderAnalytics();
+  renderTrash();
+  toast("已放进回收站");
+}
+function readResetHistory(){return historyItems.filter(item=>item&&item.kind==="library")}
+function writeResetHistory(){return true}
+async function exportData(){
+  flushDraft();
+  const copy=snapshotForFile(state);
+  copy.exportedAt=now();
+  copy.schema=5;
+  const name=safeFile((copy.config&&copy.config.name)||"知识库")+"_"+fileStamp()+".json";
+  downloadBlob(new Blob([JSON.stringify(copy,null,2)],{type:"application/json"}),name);
+  log("export","下载了当前 JSON");
+  save();
+  toast(archiveRoot?"现有版本在「存档/现有版本」。这份 JSON 已下载。":"JSON 已下载");
+}
+async function adoptLibrary(lib){
+  await parkInsideLibrary(lib);
+  const data=JSON.parse(JSON.stringify(asLibrary(lib)||lib));
+  delete data.exportedAt;
+  delete data.schema;
+  delete data.libraryHistory;
+  delete data.kind;
+  if(Array.isArray(data.versions)) data.versions=[];
+  state=data;
+  repaired=false;
+  normalize();
+  const wrote=archiveRoot?await writeCurrent():true;
+  if(archiveRoot&&!wrote){toast("没写进现有版本");return false}
+  if(archiveRoot) await scanAll();
+  persistNow();
+  renderAll();
+  showView("home");
+  return true;
+}
+function chooseImport(){
+  if(archiveRoot&&samePage(boundHref)){
+    const input=document.getElementById("importFile");
+    if(input){input.value="";input.click()}
+    return;
+  }
+  if(knownHandle&&typeof knownHandle.requestPermission==="function"){
+    knownHandle.requestPermission({mode:"readwrite"}).then(finishImportGrant,()=>finishImportGrant("prompt"));
+    return;
+  }
+  pickFolder().then(root=>{
+    if(!root) return;
+    return openImportJson();
+  });
+}
+async function finishImportGrant(perm){
+  if(perm==="granted"){
+    const ok=await materializeArchive(false);
+    if(!ok){
+      const root=await pickFolder();
+      if(!root) return;
+    }
+  }else{
+    const root=await pickFolder();
+    if(!root) return;
+  }
+  if(archiveRoot) knownHandle=archiveRoot;
+  await openImportJson();
+}
+async function openImportJson(){
+  if(window.showOpenFilePicker){
+    try{
+      const [fh]=await window.showOpenFilePicker({multiple:false,types:[{description:"JSON",accept:{"application/json":[".json"]}}]});
+      importData(await fh.getFile(),Promise.resolve(true));
+      return;
+    }catch(e){
+      if(e&&e.name==="AbortError") return;
+    }
+  }
+  const input=document.getElementById("importFile");
+  if(input){input.value="";input.click()}
+}
+function importData(file,readyPromise){
+  const input=document.getElementById("importFile");
+  if(!file){if(input) input.value="";return}
+  const reader=new FileReader();
+  reader.onload=async ()=>{
+    if(input) input.value="";
+    let data=null;
+    try{
+      let text=String(reader.result||"");
+      if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+      data=JSON.parse(text);
+    }catch(e){toast("这个文件读不了");return}
+    const lib=asLibrary(data);
+    if(!lib){toast("这个 JSON 里没有知识列表");return}
+    if(!(archiveRoot&&samePage(boundHref))) await materializeArchive(false);
+    if(!(archiveRoot&&samePage(boundHref))){
+      toast("存档没建好，旧内容没法进历史版本");
+      return;
+    }
+    if(!confirm("导入后，这份 JSON 会变成现有版本，现在的会进历史版本。")) return;
+    enqueue(async()=>{
+      await moveCurrentToHistory();
+      const ok=await adoptLibrary(lib);
+      toast(ok?"已换成这份 JSON，原来的在历史版本":"没导入");
+    });
+  };
+  reader.readAsText(file);
+}
+function sampleButtons(names){
+  if(!names.length) return "<p>示例文件夹是空的。把 JSON 放进「存档/示例」即可。</p>";
+  return '<div style="display:flex;flex-wrap:wrap;gap:8px">'+names.map(name=>'<button class="btn" type="button" data-act="use-sample" data-id="'+esc(encodeURIComponent(name))+'">'+esc(sampleLabel(name))+"</button>").join("")+"</div>";
+}
+async function ensureImportArchive(){
+  if(await materializeArchive(true)) return true;
+  toast("存档还没有。请选「"+folderLabel()+"」这一层，建好后旧内容会进历史版本");
+  return !!(await pickFolder());
+}
+async function ensureArchive(){
+  if(await materializeArchive(true)) return archiveRoot;
+  return pickFolder();
+}
+async function resetData(){
+  const root=await ensureArchive();
+  if(!root) return;
+  await enqueue(async()=>{
+    const loaded=await reloadFromDisk();
+    if(!loaded) return;
+    await ensureDefaultSample();
+    const names=await listJson(DIR_SAMPLE);
+    const bind=await readBind();
+    const where=(bind&&bind.folder)||folderLabel();
+    openModal("选择文件夹","<p style=\"margin:0 0 12px;color:var(--muted)\">当前只使用「"+esc(where)+"」。下面是这一份「存档/示例」里的 JSON，不会列出另一份文件夹。</p>"+sampleButtons(names),"关闭",closeModal);
+  });
+}
+async function restoreBuiltIn(){
+  closeModal();
+  const where=folderLabel();
+  await materializeArchive(true);
+  if(!confirm("恢复内置示例？只改「"+where+"」这一份，不打开文件夹。")) return;
+  const ok=await swapLibrary(defaults());
+  if(ok&&archiveRoot&&samePage(boundHref)){
+    try{await ensureDefaultSample()}catch(e){}
+  }
+  const wrote=!!(ok&&archiveRoot&&samePage(boundHref));
+  toast(!ok?"没换上":wrote?"已恢复「"+where+"」，JSON 已写入旁边的存档":"已恢复「"+where+"」");
+}
+async function useSample(encoded){
+  let name="";
+  try{name=decodeURIComponent(encoded||"")}catch(e){name=encoded||""}
+  if(!name) return;
+  const ready=await materializeArchive(true);
+  if(!ready){toast("当前存档还没连上，没有换上");return}
+  const bind=await readBind();
+  const where=(bind&&bind.folder)||folderLabel();
+  if(!bind||!samePage(bind.href)){toast("这份存档不是当前页面的");return}
+  if(!confirm("只把「"+where+"」换成「"+sampleLabel(name)+"」？其他文件夹不会变。")) return;
+  const doc=await readJson(DIR_SAMPLE,name);
+  const lib=asLibrary(doc);
+  if(!lib){toast("这个示例读不了");return}
+  closeModal();
+  await enqueue(async()=>{
+    await moveCurrentToHistory();
+    const ok=await adoptLibrary(lib);
+    toast(ok?"已换上「"+sampleLabel(name)+"」，原来的在历史版本":"没换上");
+  });
+}
+async function deleteLibraryHistory(id){
+  const item=readResetHistory().find(entry=>entry.id===id);
+  if(!item) return;
+  await ensureWritableArchive(true);
+  if(!confirm("删除这份整库？JSON 会进回收站。")) return;
+  if(archiveRoot&&item.file){
+    const ok=await moveHistoryToTrash(item,"library");
+    if(!ok){toast("没移进回收站");return}
+    await scanAll();
+  }
+  log("delete","删除整库备份");
+  save();
+  refreshChrome();
+  renderAnalytics();
+  renderTrash();
+  toast("已放进回收站");
+}
+async function restoreLibraryHistory(id){
+  const item=readResetHistory().find(entry=>entry.id===id);
+  if(!item) return;
+  await ensureWritableArchive(true);
+  if(!confirm("用这份整库换掉现在的内容？现在的会先进历史版本。")) return;
+  const doc=await readJson(DIR_HISTORY,item.file);
+  const lib=doc&&asLibrary(doc.snapshot||doc);
+  if(!lib){toast("这份 JSON 读不出来");return}
+  await enqueue(async()=>{
+    await moveCurrentToHistory();
+    const ok=await adoptLibrary(lib);
+    toast(ok?"已恢复":"没换成功");
+  });
+}
+function rememberTrash(type,name,data){
+  const payload=JSON.parse(JSON.stringify(data));
+  const id=uid("trash");
+  const deletedAt=now();
+  const entry={id:id,type:type,name:name,deletedAt:deletedAt,file:"",bucket:DIR_TRASH,data:payload};
+  state.trash.unshift(entry);
+  return enqueue(async()=>{
+    if(!(await materializeArchive(false))) return entry;
+    const file=trashFileName(type,name);
+    try{
+      await writeJson(DIR_TRASH,file,{kind:"trash",id:id,type:type,name:name,deletedAt:deletedAt,data:payload});
+      entry.file=file;
+      entry.data={id:payload.id||""};
+    }catch(e){
+      entry.file="";
+    }
+    return entry;
+  });
+}
+async function restoreTrash(id){
+  await ensureWritableArchive(true);
+  const item=state.trash.find(entry=>entry.id===id);
+  if(!item) return;
+  if(archiveRoot&&item.file){
+    const doc=await readJson(DIR_TRASH,item.file);
+    if(!doc){toast("这份 JSON 读不出来");return}
+    const type=doc.kind==="trash"?(doc.type||item.type):(doc.kind==="library"?"library":"version");
+    const payload=doc.kind==="trash"?doc.data:doc;
+    if(type==="version"||type==="library"||doc.kind==="article"||doc.kind==="library"){
+      const backName=(doc.kind==="trash"&&payload&&payload.kind)?(payload.file||historyFileName(payload.kind==="library"?"library":"article",payload.title||item.name)):historyFileName(type==="library"?"library":"article",item.name);
+      const body=doc.kind==="trash"?payload:doc;
+      await writeJson(DIR_HISTORY,backName,body);
+      await removeFile(DIR_TRASH,item.file);
+      await scanAll();
+      log("restore","恢复："+item.name);
+      save();
+      renderAll();
+      toast("已放回历史版本");
+      return;
+    }
+    const data=payload||{};
+    if(type==="article"){
+      if(!data.id&&!data.title&&!data.documentTree){toast("这份 JSON 读不出来");return}
+      if(data.id&&state.articles.some(article=>article.id===data.id)){toast("库里已经有这一条了");return}
+      if(data.categoryId&&!state.categories.some(c=>c.id===data.categoryId)) data.categoryId="";
+      state.articles.unshift(data);
+    }else if(type==="category"){
+      if(!data.id){toast("这份 JSON 读不出来");return}
+      if(state.categories.some(c=>c.id===data.id)){toast("这个分类还在");return}
+      if(data.parentId&&!state.categories.some(c=>c.id===data.parentId)) data.parentId=null;
+      state.categories.push(data);
+    }else if(type==="tag"){
+      if(!data.id){toast("这份 JSON 读不出来");return}
+      if(state.tags.some(tag=>tag.id===data.id)){toast("这个标签还在");return}
+      state.tags.push(data);
+    }else if(type==="navigation"){
+      if(!data.id){toast("这份 JSON 读不出来");return}
+      if(state.navigation.some(nav=>nav.id===data.id)){toast("这个导航还在");return}
+      state.navigation.push(data);
+    }else{toast("这种类型恢复不了");return}
+    await removeFile(DIR_TRASH,item.file);
+    state.trash=state.trash.filter(entry=>entry.id!==id);
+    log("restore","恢复："+item.name);
+    save();
+    renderAll();
+    toast("已恢复");
+    return;
+  }
+  const inline=item.data||{};
+  if(item.type==="version"&&inline.snapshot){
+    if(state.versions.some(v=>v.id===inline.id)){toast("这份旧版本还在");return}
+    state.versions.unshift(inline);
+  }else if(item.type==="library"&&asLibrary(inline.snapshot||inline)){
+    historyItems.unshift({id:inline.id||uid("lib"),file:"",time:inline.time||item.deletedAt,title:"整库",kind:"library"});
+  }else if(item.type==="article"){
+    if(!inline.id&&!inline.title&&!inline.documentTree){toast("这份 JSON 读不出来");return}
+    if(inline.id&&state.articles.some(article=>article.id===inline.id)){toast("库里已经有这一条了");return}
+    if(inline.categoryId&&!state.categories.some(c=>c.id===inline.categoryId)) inline.categoryId="";
+    state.articles.unshift(inline);
+  }else if(item.type==="category"){
+    if(!inline.id){toast("这份 JSON 读不出来");return}
+    if(state.categories.some(c=>c.id===inline.id)){toast("这个分类还在");return}
+    if(inline.parentId&&!state.categories.some(c=>c.id===inline.parentId)) inline.parentId=null;
+    state.categories.push(inline);
+  }else if(item.type==="tag"){
+    if(!inline.id){toast("这份 JSON 读不出来");return}
+    if(state.tags.some(tag=>tag.id===inline.id)){toast("这个标签还在");return}
+    state.tags.push(inline);
+  }else if(item.type==="navigation"){
+    if(!inline.id){toast("这份 JSON 读不出来");return}
+    if(state.navigation.some(nav=>nav.id===inline.id)){toast("这个导航还在");return}
+    state.navigation.push(inline);
+  }else{toast("这份 JSON 读不出来");return}
+  state.trash=state.trash.filter(entry=>entry.id!==id);
+  log("restore","恢复："+item.name);
+  save();
+  renderAll();
+  toast("已恢复");
+}
+async function permanentDelete(id){
+  const item=state.trash.find(entry=>entry.id===id);
+  if(!item) return;
+  await ensureWritableArchive(true);
+  if(!confirm("永久删除「"+item.name+"」？JSON 文件也会删掉。")) return;
+  if(archiveRoot&&item.file) await removeFile(DIR_TRASH,item.file);
+  state.trash=state.trash.filter(entry=>entry.id!==id);
+  log("purge","永久删除："+item.name);
+  save();
+  renderTrash();
+  toast("已永久删除");
+}
+async function emptyTrash(){
+  if(!state.trash.length){toast("回收站是空的");return}
+  await ensureWritableArchive(true);
+  if(!confirm("清空回收站？JSON 文件也会删掉。")) return;
+  const gone=state.trash.slice();
+  if(archiveRoot){
+    for(const item of gone){if(item.file) await removeFile(DIR_TRASH,item.file)}
+  }
+  state.trash=[];
+  log("purge","清空回收站 "+gone.length+" 条");
+  save();
+  renderAll();
+  toast("回收站已清空");
+}
+function purgeExpired(manual){
+  const days=Number(state.config.retention||0);
+  if(!days){if(manual) toast("自动清理是关的");return false}
+  const cutoff=Date.now()-days*86400000;
+  const keep=[];
+  const dropped=[];
+  state.trash.forEach(item=>{
+    const time=new Date(item.deletedAt).getTime();
+    if(!Number.isNaN(time)&&time<cutoff) dropped.push(item);
+    else keep.push(item);
+  });
+  if(!dropped.length){if(manual) toast("没有过期的");return false}
+  state.trash=keep;
+  log("purge","清理过期 "+dropped.length+" 条");
+  if(archiveRoot){
+    enqueue(async()=>{
+      for(const item of dropped){if(item.file) await removeFile(DIR_TRASH,item.file)}
+    });
+  }
+  if(manual){save();renderTrash();toast("清掉了 "+dropped.length+" 条")}
+  return true;
+}
+function archiveStatusText(){
+  const where=prettyPlace();
+  const count=Array.isArray(state.articles)?state.articles.length:0;
+  if(archiveRoot&&boundHref===pageIdentity()) return "当前文件夹「"+folderLabel()+"」已自动打开。位置："+where;
+  if(count) return "当前这份页面自己的文档。位置："+where;
+  return "当前文件夹还没有文档。可以新建，或手动选择文件夹。位置："+where;
+}
+function renderArchiveStatus(){
+  const el=document.getElementById("archiveStatus");
+  if(el) el.textContent=archiveStatusText();
+}
+function renderExportFiles(){
+  const box=document.getElementById("sampleFileList");
+  if(!box) return;
+  const names=sampleNames||[];
+  box.innerHTML=names.length?sampleButtons(names):"";
+}
+function trashExport(){}
+function swapLibrary(next){
+  return enqueue(async()=>{
+    await materializeArchive(false);
+    if(archiveRoot&&samePage(boundHref)) await moveCurrentToHistory();
+    return adoptLibrary(next);
+  });
+}
 
 load();
 renderAll();
