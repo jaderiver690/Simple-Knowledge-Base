@@ -137,6 +137,10 @@ button{cursor:pointer}
 .article-content img{max-width:100%;border-radius:12px}
 .article-content ul,.article-content ol{padding-left:1.3em}
 .article-content hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.article-content table{border-collapse:collapse;width:100%;margin:12px 0}
+.article-content th,.article-content td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}
+.article-content th{background:var(--panel2)}
+.article-content .asset-missing{color:var(--muted)}
 .article-actions{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0}
 .toc{border:1px solid var(--line);background:var(--panel2);padding:15px;border-radius:13px;margin:18px 0}
 .toc a{display:block;color:var(--muted);font-size:13px;text-decoration:none;padding:3px 0}
@@ -244,13 +248,17 @@ html[data-density="compact"] .article-row{padding:8px}
   .top-actions .optional{display:none}
   .site-card:hover{transform:none}
 }
+@page{size:A4;margin:16mm}
 @media print{
-  .sidebar,.topbar,.toast,.modal-bg,.command,.search-drop,.article-actions,.head-actions,.toolbar,.nav-item{display:none!important}
+  .sidebar,.topbar,.toast,.modal-bg,.command,.search-drop,.article-actions,.head-actions,.toolbar,.nav-item,#homeReaderNext,[data-act="download-asset"]{display:none!important}
   .main{margin:0!important;width:auto!important}
   .content{padding:0;max-width:none}
   .view{display:none!important}
   .view.active{display:block!important}
-  .card,.stat{box-shadow:none}
+  .card,.stat{box-shadow:none;border:0}
+  .article-content{font-size:12pt;line-height:1.6}
+  .article-content img{max-width:100%}
+  .article-content tr,.article-content img{page-break-inside:avoid}
 }
 </style>
 </head>
@@ -302,7 +310,7 @@ html[data-density="compact"] .article-row{padding:8px}
       <div class="crumbs" id="homeReaderCrumbs"></div>
       <div class="page-title" id="homeReaderTitle">知识</div>
     </div>
-    <div class="head-actions"><button class="btn" type="button" onclick="homeReaderBack()">← 返回</button></div>
+    <div class="head-actions"><button class="btn" type="button" id="homePrintBtn" data-act="print-article" hidden>打印</button><button class="btn" type="button" onclick="homeReaderBack()">← 返回</button></div>
   </div>
   <div class="card" id="homeReaderBody" style="margin-bottom:16px"></div>
   <div class="site-section" id="homeReaderNext"><div id="homeReaderChildren" class="site-grid"></div></div>
@@ -495,8 +503,8 @@ html[data-density="compact"] .article-row{padding:8px}
     </div>
     <div class="setting-section" id="set-data">
       <div class="setting-line"><div class="setting-info"><strong>存档</strong><span id="archiveStatus">自动识别当前这个文件夹。有文档就直接打开；没有才手动选择或新建。</span></div><button class="btn" id="archivePickBtn" type="button" onclick="connectArchiveFolder()">手动选择文件夹</button></div>
-      <div class="setting-line"><div class="setting-info"><strong>导出</strong><span>只导出当前这份 JSON。</span></div><button class="btn" type="button" onclick="exportData()">导出 JSON</button></div>
-      <div class="setting-line"><div class="setting-info"><strong>导入</strong><span>直接选择 JSON。没有存档会先建好，原来的进历史版本，新的成为现有版本。</span></div><button class="btn" type="button" onclick="chooseImport()">选择 JSON</button><input id="importFile" type="file" accept="application/json,.json" hidden></div>
+      <div class="setting-line"><div class="setting-info"><strong>导出</strong><span>导出当前这份封包，正文、图片和附件都在里面。</span></div><button class="btn" type="button" onclick="exportData()">导出封包</button></div>
+      <div class="setting-line"><div class="setting-info"><strong>导入</strong><span>直接选择封包。没有存档会先建好，原来的进历史版本，新的成为现有版本。</span></div><button class="btn" type="button" onclick="chooseImport()">选择封包</button><input id="importFile" type="file" accept=".safe,.json,application/json" hidden></div>
       <div class="setting-line"><div class="setting-info"><strong>恢复示例</strong><span>直接恢复不打开文件夹，示例写入这个 html 旁边的存档。只有「选择文件夹」才会去选存档位置。</span></div><span style="display:flex;gap:8px;flex-shrink:0"><button class="btn danger" type="button" onclick="restoreBuiltIn()">直接恢复</button><button class="btn" type="button" onclick="resetData()">选择文件夹</button></span></div>
       <div id="sampleFileList"></div>
     </div>
@@ -516,7 +524,7 @@ html[data-density="compact"] .article-row{padding:8px}
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
 <div class="command" id="commandBg" onclick="if(event.target===this)closeCommand()"><div class="command-box"><input class="command-input" id="commandInput" placeholder="搜索" oninput="renderCommands(true)"><div class="commands" id="commands"></div></div></div>
 <div class="toast" id="toast"></div>
-<script type="application/json" id="kb-place">{"id":"inst_muy8dmft_skl5v2","href":"file:///C:/Users/13031/Desktop/JadeRiver知识库/JadeRiver知识库.html","folder":"JadeRiver知识库"}</script>
+<script type="application/json" id="kb-place">{"id":"inst_mv2khmy7_c2qqxo","href":"file:///C:/Users/13031/Desktop/JadeRiver知识库/JadeRiver知识库.html","folder":"JadeRiver知识库"}</script>
 <script src="存档/现有版本/当前.js"></script>
 <script>
 const pristine=document.documentElement.cloneNode(true);
@@ -733,6 +741,7 @@ function normalize(){
   ["navigation","categories","tags","articles","recent","versions","trash","logs"].forEach(key=>{
     if(!Array.isArray(state[key])){state[key]=[];repaired=true}
   });
+  if(!state.assets||typeof state.assets!=="object"||Array.isArray(state.assets)) state.assets={};
   seed.navigation.forEach(item=>{
     if(!state.navigation.some(n=>n.id===item.id)){state.navigation.push({...item});repaired=true}
   });
@@ -1248,6 +1257,8 @@ function renderHomeNode(article,node,path,quiet){
   const hasBody=!!String(node.content||"").trim();
   body.style.display=hasBody?"":"none";
   body.innerHTML=hasBody?'<div class="article-content">'+md(node.content)+"</div>":"";
+  const printBtn=document.getElementById("homePrintBtn");
+  if(printBtn) printBtn.hidden=!hasBody;
   const kids=node.children||[];
   const next=document.getElementById("homeReaderNext");
   if(next) next.style.display=kids.length?"":"none";
@@ -1327,7 +1338,7 @@ function renderSearchDrop(q){
   q=String(q||"").trim();
   if(!q){closeSearchDrop();return}
   const hits=getGlobalSearchMatches(q).slice(0,8);
-  let html=hits.map(hit=>'<button type="button" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'"><b>'+esc(hit.node.title||"未命名")+'</b><span class="drop-meta">'+esc(hit.article.title)+" · "+esc(hit.source)+"</span></button>").join("");
+  let html=hits.map(hit=>'<button type="button" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'" data-q="'+esc(q)+'"><b>'+esc(hit.node.title||"未命名")+'</b><span class="drop-meta">'+esc(hit.article.title)+" · "+esc(hit.source)+"</span></button>").join("");
   html+='<button type="button" data-act="jump-search">查看全部结果</button>';
   drop.innerHTML=html;
   drop.classList.add("show");
@@ -1354,7 +1365,7 @@ function renderGlobalSearch(q){
   }
   const matches=getGlobalSearchMatches(q);
   summary.textContent="找到 "+matches.length+" 处";
-  results.innerHTML=matches.length?matches.map(hit=>'<div class="search-result" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'">'
+  results.innerHTML=matches.length?matches.map(hit=>'<div class="search-result" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'" data-q="'+esc(q)+'">'
     +'<div class="search-result-top"><span class="tree-level">H'+hit.node.level+'</span><span class="search-result-title">'+highlightSearch(hit.node.title,q)+'</span><span class="search-result-path">'+esc(hit.article.title)+" · "+esc(hit.source)+(hit.article.status==="draft"?" · 草稿":"")+"</span></div>"
     +'<div class="search-result-snippet">'+highlightSearch(hit.snippet,q)+"</div></div>").join(""):'<div class="search-empty">没有匹配的标题或正文。</div>';
 }
@@ -1508,16 +1519,45 @@ async function bulkAction(type){
   }
 }
 
+function assetBlobUrl(id){
+  const blob=assetBytes.get(id);
+  if(!blob) return "";
+  let url=assetUrls.get(id);
+  if(!url){url=URL.createObjectURL(blob);assetUrls.set(id,url)}
+  return url;
+}
+function assetImageHtml(alt,id){
+  const url=assetBlobUrl(id);
+  const img=url?'<img alt="'+alt+'" src="'+url+'">':'<span class="asset-missing">'+(alt||"图片")+"</span>";
+  return img+' <button type="button" class="btn" data-act="download-asset" data-id="'+id+'">下载</button>';
+}
+function assetLinkHtml(label,id){
+  return '<button type="button" class="btn" data-act="download-asset" data-id="'+id+'">下载 '+(label||"附件")+"</button>";
+}
 function inlineFormat(raw){
   return String(raw??"").split(/(`[^`\n]+`)/).map(part=>{
     if(/^`[^`\n]+`$/.test(part)) return "<code>"+esc(part.slice(1,-1))+"</code>";
     let text=esc(part);
     text=text.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,'<img alt="$1" src="$2" referrerpolicy="no-referrer">');
+    text=text.replace(/!\[([^\]]*)\]\((data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+)\)/g,'<img alt="$1" src="$2">');
+    text=text.replace(/!\[([^\]]*)\]\((safe:[A-Za-z0-9_]+)\)/g,(m,alt,src)=>assetImageHtml(alt,src.slice(5)));
     text=text.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">$1</a>');
+    text=text.replace(/\[([^\]]+)\]\((safe:[A-Za-z0-9_]+)\)/g,(m,label,src)=>assetLinkHtml(label,src.slice(5)));
     text=text.replace(/(^|[^*\w])\*\*(?=\S)([^*\n]*?\S)\*\*(?![*\w])/g,"$1<strong>$2</strong>");
     text=text.replace(/(^|[^*\w])\*(?=\S)([^*\n]*?\S)\*(?![*\w])/g,"$1<em>$2</em>");
     return text;
   }).join("");
+}
+function isTableSep(line){
+  const s=String(line||"").trim();
+  if(s.indexOf("|")<0||s.indexOf("-")<0) return false;
+  return /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$/.test(s);
+}
+function splitTableRow(line){
+  let s=String(line||"").trim();
+  if(s.charAt(0)==="|") s=s.slice(1);
+  if(s.charAt(s.length-1)==="|") s=s.slice(0,-1);
+  return s.split("|").map(cell=>cell.trim());
 }
 function md(src){
   const lines=String(src||"").replace(/\r\n/g,"\n").split("\n");
@@ -1531,7 +1571,8 @@ function md(src){
   };
   const flushQuote=()=>{if(!quote.length) return; html+="<blockquote>"+quote.map(line=>inlineFormat(line)).join("<br>")+"</blockquote>"; quote=[]};
   const flushAll=()=>{flushPara();flushList();flushQuote()};
-  for(const line of lines){
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
     if(code){
       if(/^```/.test(line)){html+="<pre><code>"+esc(code.join("\n"))+"</code></pre>";code=null}
       else code.push(line);
@@ -1539,6 +1580,18 @@ function md(src){
     }
     if(/^```/.test(line)){flushAll();code=[];continue}
     if(!line.trim()){flushAll();continue}
+    if(line.indexOf("|")>=0&&i+1<lines.length&&isTableSep(lines[i+1])){
+      flushAll();
+      const rows=[splitTableRow(line)];
+      i+=2;
+      while(i<lines.length&&lines[i].trim()&&lines[i].indexOf("|")>=0){rows.push(splitTableRow(lines[i]));i++}
+      i--;
+      const head=rows[0];
+      html+="<table><thead><tr>"+head.map(cell=>"<th>"+inlineFormat(cell)+"</th>").join("")+"</tr></thead><tbody>";
+      rows.slice(1).forEach(row=>{html+="<tr>"+head.map((cell,index)=>"<td>"+inlineFormat(row[index]||"")+"</td>").join("")+"</tr>"});
+      html+="</tbody></table>";
+      continue;
+    }
     let matched=line.match(/^(#{1,6})\s+(.*)$/);
     if(matched){flushAll();html+='<div class="md-h md-h'+matched[1].length+'">'+inlineFormat(matched[2])+"</div>";continue}
     if(/^\s*[-*]\s+/.test(line)){
@@ -1643,14 +1696,52 @@ function buildToc(){
     if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
   };
 }
-function openArticleNode(articleId,nodeId){
+function markFirstText(root,query){
+  const want=String(query||"");
+  const lower=want.toLowerCase();
+  if(!root||!lower) return null;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  let node;
+  while((node=walker.nextNode())){
+    const text=node.nodeValue||"";
+    const at=text.toLowerCase().indexOf(lower);
+    if(at<0) continue;
+    try{
+      const range=document.createRange();
+      range.setStart(node,at);
+      range.setEnd(node,at+want.length);
+      const mark=document.createElement("mark");
+      mark.className="search-highlight";
+      range.surroundContents(mark);
+      return mark;
+    }catch(e){return null}
+  }
+  return null;
+}
+function openArticleNode(articleId,nodeId,query){
   openArticle(articleId);
+  const content=document.getElementById("articleContent");
   const target=[...document.querySelectorAll("#articleContent [data-node-id]")].find(el=>el.dataset.nodeId===nodeId);
-  if(!target) return;
-  target.scrollIntoView({behavior:"smooth",block:"start"});
-  target.style.outline="2px solid var(--accent)";
-  target.style.outlineOffset="6px";
-  setTimeout(()=>{target.style.outline="";target.style.outlineOffset=""},1600);
+  const q=String(query||"").trim();
+  let mark=null;
+  if(q){
+    let el=target?target.nextElementSibling:content&&content.firstElementChild;
+    while(el&&!el.getAttribute("data-node-id")){
+      mark=markFirstText(el,q);
+      if(mark) break;
+      el=el.nextElementSibling;
+    }
+    if(!mark&&target) mark=markFirstText(target,q);
+  }
+  if(!target&&!mark) return;
+  const focus=mark||target;
+  focus.style.scrollMarginTop="88px";
+  focus.scrollIntoView({behavior:"smooth",block:"start"});
+  if(!mark&&target){
+    target.style.outline="2px solid var(--accent)";
+    target.style.outlineOffset="6px";
+    setTimeout(()=>{target.style.outline="";target.style.outlineOffset=""},1600);
+  }
 }
 function toggleFavorite(id){
   const article=articleById(id);
@@ -1963,7 +2054,8 @@ function renderDocumentNodeEditor(){
   const got=getSelectedDocumentNode();
   if(!got){box.innerHTML="";return}
   const article=got.article, node=got.hit.node;
-  documentDraft={articleId:article.id,nodeId:node.id,title:node.title||"",content:node.content||"",level:node.level||1,dirty:false,snapshotted:false};
+  const keep=documentDraft&&documentDraft.articleId===article.id&&documentDraft.nodeId===node.id?documentDraft:null;
+  documentDraft={articleId:article.id,nodeId:node.id,title:node.title||"",content:node.content||"",level:node.level||1,dirty:false,snapshotted:!!(keep&&keep.snapshotted),baseline:keep&&keep.baseline?keep.baseline:{title:node.title||"",content:node.content||"",level:Number(node.level)||1}};
   const levels=[1,2,3,4,5,6].map(level=>'<option value="'+level+'"'+(level===Number(node.level)?" selected":"")+">H"+level+"</option>").join("");
   box.innerHTML='<div class="doc-editor-head"><div><div class="doc-editor-title">改这一节</div><div class="doc-editor-sub">'+esc(article.title)+" / "+esc(node.title||"未命名")+'</div></div><button class="btn primary" type="button" data-act="save-node">保存</button></div>'
     +'<div class="node-editor"><div class="field full"><label>层级</label><select id="nodeLevel">'+levels+"</select></div>"
@@ -1971,7 +2063,8 @@ function renderDocumentNodeEditor(){
     +'<div class="editor-tabs"><button type="button" class="editor-tab active" data-act="node-tab" data-tab="edit">编辑</button><button type="button" class="editor-tab" data-act="node-tab" data-tab="preview">预览</button></div>'
     +'<div id="nodeEditPane"><textarea id="nodeBody" class="node-body-editor">'+esc(node.content||"")+'</textarea></div>'
     +'<div id="nodePreviewPane" class="doc-preview article-content" hidden></div>'
-    +'<div class="node-actions"><button class="btn primary" type="button" data-act="save-node">保存</button><button class="btn" type="button" data-act="discard-node">放弃修改</button><span id="documentSaveState" style="color:var(--muted)">已保存</span><span id="nodeCount" style="color:var(--muted);font-size:12px">'+String(node.content||"").length+' 字</span></div>'
+    +'<div class="node-actions"><button class="btn primary" type="button" data-act="save-node">保存</button><button class="btn" type="button" id="nodeUpload">上传附件</button><button class="btn" type="button" data-act="discard-node">放弃修改</button><span id="documentSaveState" style="color:var(--muted)">已保存</span><span id="nodeCount" style="color:var(--muted);font-size:12px">'+String(node.content||"").length+' 字</span></div>'
+    +'<input id="nodeFiles" type="file" multiple hidden>'
     +'<div class="node-actions"><button class="btn" type="button" data-act="add-child" data-article="'+esc(article.id)+'" data-node="'+esc(node.id)+'">加下级</button>'
     +'<button class="btn" type="button" data-act="add-sibling" data-article="'+esc(article.id)+'" data-node="'+esc(node.id)+'">加同级</button>'
     +'<button class="btn" type="button" data-act="move-node" data-article="'+esc(article.id)+'" data-node="'+esc(node.id)+'" data-dir="-1">上移</button>'
@@ -1986,8 +2079,103 @@ function renderDocumentNodeEditor(){
   const levelInput=document.getElementById("nodeLevel");
   titleInput.addEventListener("input",markDraftDirty);
   bodyInput.addEventListener("input",markDraftDirty);
+  bodyInput.addEventListener("paste",onNodePaste);
   levelInput.addEventListener("change",markDraftDirty);
+  const fileInput=document.getElementById("nodeFiles");
+  document.getElementById("nodeUpload").addEventListener("click",()=>fileInput.click());
+  fileInput.addEventListener("change",onNodeFiles);
   if(node.title==="未命名"){titleInput.focus();titleInput.select()}
+}
+function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(String(reader.result||""));
+    reader.onerror=()=>reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+function rememberAsset(id,blob,meta){
+  if(!state.assets||typeof state.assets!=="object"||Array.isArray(state.assets)) state.assets={};
+  state.assets[id]=meta;
+  const prev=assetUrls.get(id);
+  if(prev) URL.revokeObjectURL(prev);
+  assetUrls.delete(id);
+  assetBytes.set(id,blob);
+}
+async function storeAsset(file){
+  const id=uid("file");
+  rememberAsset(id,file,{name:file.name||"未命名",mime:file.type||"application/octet-stream",size:file.size||0});
+  return id;
+}
+function insertAtCursor(el,text){
+  if(!el) return;
+  const start=el.selectionStart||0;
+  const end=el.selectionEnd||0;
+  const before=el.value.slice(0,start);
+  const after=el.value.slice(end);
+  const padBefore=before&&!/\n$/.test(before)?"\n":"";
+  const padAfter=after&&!/^\n/.test(after)?"\n":"";
+  el.setRangeText(padBefore+text+padAfter,start,end,"end");
+  el.dispatchEvent(new Event("input",{bubbles:true}));
+}
+function htmlTableToMarkdown(table){
+  const rows=[...table.rows].map(tr=>[...tr.cells].map(td=>String(td.innerText||"").replace(/\|/g,"\\|").replace(/\s+/g," ").trim()));
+  const width=rows.reduce((max,row)=>Math.max(max,row.length),0);
+  if(!width) return "";
+  rows.forEach(row=>{while(row.length<width) row.push("")});
+  const line=row=>"| "+row.join(" | ")+" |";
+  return [line(rows[0]),line(Array(width).fill("---")),...rows.slice(1).map(line)].join("\n");
+}
+function clipboardImages(cd){
+  const out=[];
+  const seen=new Set();
+  const add=file=>{
+    if(!file||!/^image\//.test(file.type||"")) return;
+    const key=(file.name||"")+"|"+(file.size||0)+"|"+(file.type||"");
+    if(seen.has(key)) return;
+    seen.add(key);
+    out.push(file);
+  };
+  [...(cd.items||[])].forEach(item=>{if(item.kind==="file") add(item.getAsFile())});
+  [...(cd.files||[])].forEach(add);
+  return out;
+}
+function onNodePaste(event){
+  const cd=event.clipboardData;
+  if(!cd) return;
+  const html=cd.getData("text/html")||"";
+  const doc=html?new DOMParser().parseFromString(html,"text/html"):null;
+  const tables=doc?[...doc.querySelectorAll("table")]:[];
+  const images=tables.length?[]:clipboardImages(cd);
+  if(!tables.length&&!images.length) return;
+  event.preventDefault();
+  const el=event.target;
+  Promise.resolve().then(async()=>{
+    const chunks=[];
+    tables.forEach(table=>{
+      const text=htmlTableToMarkdown(table);
+      if(text) chunks.push(text);
+    });
+    for(const file of images){
+      if((file.size||0)<=900000) chunks.push("![]("+await fileToDataUrl(file)+")");
+      else chunks.push("![](safe:"+await storeAsset(file)+")");
+    }
+    if(chunks.length) insertAtCursor(el,chunks.join("\n\n"));
+  }).catch(()=>toast("粘贴没成功"));
+}
+async function onNodeFiles(){
+  const input=document.getElementById("nodeFiles");
+  const files=[...(input&&input.files)||[]];
+  if(input) input.value="";
+  if(!files.length) return;
+  const chunks=[];
+  for(const file of files){
+    const id=await storeAsset(file);
+    const name=String(file.name||"附件").replace(/[\[\]\(\)]/g,"");
+    if(/^image\//.test(file.type||"")) chunks.push("![](safe:"+id+")");
+    else chunks.push("["+name+"](safe:"+id+")");
+  }
+  insertAtCursor(document.getElementById("nodeBody"),chunks.join("\n\n"));
 }
 function markDraftDirty(){
   if(!documentDraft) return;
@@ -2029,7 +2217,8 @@ async function saveDocumentNode(silent){
   node.level=level;
   touchTree(article);
   clearTimeout(draftTimer);
-  documentDraft={articleId:article.id,nodeId:node.id,title:title,content:content,level:level,dirty:false,snapshotted:true};
+  const baseline=documentDraft&&documentDraft.baseline;
+  documentDraft={articleId:article.id,nodeId:node.id,title:title,content:content,level:level,dirty:false,snapshotted:true,baseline:baseline||{title:title,content:content,level:level}};
   if(!silent) log("edit","保存正文："+title);
   save();
   const tree=document.getElementById("documentTree");
@@ -2043,10 +2232,33 @@ async function saveDocumentNode(silent){
   if(!silent) toast("已保存");
 }
 function discardDocumentDraft(){
-  if(documentDraft?.dirty&&!confirm("丢掉还没保存的修改？")) return;
+  const base=documentDraft&&documentDraft.baseline;
+  const got=getSelectedDocumentNode();
+  const title=document.getElementById("nodeTitle")?document.getElementById("nodeTitle").value:(documentDraft&&documentDraft.title||"");
+  const content=document.getElementById("nodeBody")?document.getElementById("nodeBody").value:(documentDraft&&documentDraft.content||"");
+  const level=Number(document.getElementById("nodeLevel")?document.getElementById("nodeLevel").value:(documentDraft&&documentDraft.level||1));
+  const node=got&&got.hit.node;
+  const changed=!!base&&(title!==base.title||content!==base.content||level!==Number(base.level)||(node&&(node.title!==base.title||node.content!==base.content||Number(node.level)!==Number(base.level))));
+  if(!changed){toast("没有要丢掉的修改");return}
+  if(!confirm("丢掉这次打开后的修改，回到刚打开这一节时的内容？")) return;
   clearTimeout(draftTimer);
+  if(node){
+    node.title=base.title;
+    node.content=base.content;
+    node.level=base.level;
+    touchTree(got.article);
+    save();
+    const tree=document.getElementById("documentTree");
+    const top=tree?tree.scrollTop:0;
+    renderDocumentManager();
+    const nextTree=document.getElementById("documentTree");
+    if(nextTree) nextTree.scrollTop=top;
+  }
   documentDraft=null;
   renderDocumentNodeEditor();
+  const stateEl=document.getElementById("documentSaveState");
+  if(stateEl) stateEl.textContent="已保存";
+  toast("已回到打开这一节时的内容");
 }
 function flushCurrentIfNeeded(){
   if(!documentDraft?.dirty) return true;
@@ -2358,7 +2570,7 @@ async function deleteTag(id){
   toast("标签已删除");
 }
 
-function typeName(type){return ({article:"知识",category:"分类",tag:"标签",navigation:"导航",version:"旧版本",library:"整库",export:"导出 JSON"})[type]||type}
+function typeName(type){return ({article:"知识",category:"分类",tag:"标签",navigation:"导航",version:"旧版本",library:"整库",export:"导出封包"})[type]||type}
 function renderTrash(){
   const filter=document.getElementById("trashFilter")?.value||"";
   const rows=state.trash.filter(item=>!filter||item.type===filter);
@@ -2587,6 +2799,12 @@ function downloadBlob(blob,name){
   link.remove();
   setTimeout(()=>URL.revokeObjectURL(link.href),1000);
 }
+function downloadAsset(id){
+  const blob=assetBytes.get(id);
+  const meta=state.assets&&state.assets[id];
+  if(!blob){toast("附件还没读到");return}
+  downloadBlob(blob,(meta&&meta.name)||"附件");
+}
 
 function sendableHtml(){
   const page=pristine.cloneNode(true);
@@ -2669,8 +2887,8 @@ function renderCommands(reset){
     ["回收站","",()=>showView("trash")],
     ["统计","",()=>showView("analytics")],
     ["设置","",()=>showView("settings")],
-    ["导出 JSON","",exportData],
-    ["导入 JSON","",chooseImport],
+    ["导出封包","",exportData],
+    ["导入封包","",chooseImport],
     ["直接恢复","",restoreBuiltIn],
     ["选择文件夹","",resetData],
     ["切换深浅色","",toggleTheme]
@@ -2713,13 +2931,14 @@ function handleAction(el){
   else if(act==="pin") togglePin(id);
   else if(act==="new-article") openArticleEditor();
   else if(act==="open-home") showHomeNode(el.dataset.article,el.dataset.node);
-  else if(act==="open-node"){closeSearchDrop();openArticleNode(el.dataset.article,el.dataset.node)}
+  else if(act==="open-node"){closeSearchDrop();openArticleNode(el.dataset.article,el.dataset.node,el.dataset.q||"")}
   else if(act==="jump-search") jumpSearch(document.getElementById("globalSearch").value.trim());
   else if(act==="go-back") showView(lastView||"home");
   else if(act==="edit-body") editInManager(id);
   else if(act==="versions") openVersionList(id);
   else if(act==="copy-link") copyArticleLink(id);
   else if(act==="print-article") window.print();
+  else if(act==="download-asset") downloadAsset(id);
   else if(act==="restore-ver") restoreVersion(id);
   else if(act==="restore-lib") restoreLibraryHistory(id);
   else if(act==="delete-lib") deleteLibraryHistory(id);
@@ -2858,8 +3077,8 @@ const DIR_CURRENT="现有版本";
 const DIR_HISTORY="历史版本";
 const DIR_TRASH="回收站";
 const DIR_SAMPLE="示例";
-const CURRENT_FILE="当前.json";
-const BIND_FILE="本页.json";
+const CURRENT_FILE="当前.safe";
+const BIND_FILE="本页.safe";
 let pendingCarry=[];
 let historyItems=[];
 let sampleNames=[];
@@ -2875,6 +3094,8 @@ let kbExternal=false;
 const snapshotCache=new Map();
 let archiveChain=Promise.resolve();
 let archiveDbPromise=null;
+const assetBytes=new Map();
+const assetUrls=new Map();
 
 function enqueue(fn){
   const run=archiveChain.then(fn,fn);
@@ -2942,9 +3163,9 @@ function safeFile(name){
   const s=String(name||"未命名").replace(/[\\/:*?\x22<>|]/g,"_").replace(/\s+/g," ").trim().slice(0,40);
   return s||"未命名";
 }
-function sampleLabel(name){return String(name||"").replace(/\.json$/i,"")}
+function sampleLabel(name){return String(name||"").replace(/\.(json|safe)$/i,"")}
 function historyFileName(kind,title){
-  return (kind==="library"?"整库":"文章")+"_"+safeFile(title)+"_"+fileStamp()+"_"+Math.random().toString(36).slice(2,6)+".json";
+  return (kind==="library"?"整库":"文章")+"_"+safeFile(title)+"_"+fileStamp()+"_"+Math.random().toString(36).slice(2,6)+".safe";
 }
 function classifyHistory(doc){
   if(!doc||typeof doc!=="object") return "";
@@ -2957,7 +3178,7 @@ function classifyHistory(doc){
 }
 function trashFileName(type,title){
   const label=({article:"知识",category:"分类",tag:"标签",navigation:"导航",version:"旧版本",library:"整库"})[type]||"条目";
-  return label+"_"+safeFile(title)+"_"+fileStamp()+"_"+Math.random().toString(36).slice(2,6)+".json";
+  return label+"_"+safeFile(title)+"_"+fileStamp()+"_"+Math.random().toString(36).slice(2,6)+".safe";
 }
 function asLibrary(data){
   if(!data||typeof data!=="object"||Array.isArray(data)) return null;
@@ -3010,35 +3231,246 @@ async function writeText(bucket,name,text){
   await writable.write(text);
   await writable.close();
 }
+async function writeBytes(bucket,name,bytes){
+  const dir=await bucketDir(bucket);
+  const fh=await dir.getFileHandle(name,{create:true});
+  const writable=await fh.createWritable();
+  await writable.write(new Blob([bytes]));
+  await writable.close();
+}
+async function readBytes(bucket,name){
+  const dir=await bucketDir(bucket);
+  const fh=await dir.getFileHandle(name);
+  return new Uint8Array(await (await fh.getFile()).arrayBuffer());
+}
+let crcTable=null;
+function crc32(bytes){
+  if(!crcTable){
+    crcTable=new Uint32Array(256);
+    for(let n=0;n<256;n++){
+      let c=n;
+      for(let k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);
+      crcTable[n]=c>>>0;
+    }
+  }
+  let crc=0xFFFFFFFF;
+  for(let i=0;i<bytes.length;i++) crc=crcTable[(crc^bytes[i])&0xFF]^(crc>>>8);
+  return (crc^0xFFFFFFFF)>>>0;
+}
+function concatBytes(parts){
+  let total=0;
+  parts.forEach(part=>{total+=part.length});
+  const out=new Uint8Array(total);
+  let offset=0;
+  parts.forEach(part=>{out.set(part,offset);offset+=part.length});
+  return out;
+}
+function zipStore(entries){
+  const encoder=new TextEncoder();
+  const parts=[];
+  const central=[];
+  let offset=0;
+  entries.forEach(entry=>{
+    const nameBytes=encoder.encode(entry.name);
+    const crc=crc32(entry.data);
+    const local=new DataView(new ArrayBuffer(30));
+    local.setUint32(0,0x04034b50,true);
+    local.setUint16(4,20,true);
+    local.setUint16(8,0,true);
+    local.setUint32(14,crc,true);
+    local.setUint32(18,entry.data.length,true);
+    local.setUint32(22,entry.data.length,true);
+    local.setUint16(26,nameBytes.length,true);
+    parts.push(new Uint8Array(local.buffer),nameBytes,entry.data);
+    const cen=new DataView(new ArrayBuffer(46));
+    cen.setUint32(0,0x02014b50,true);
+    cen.setUint16(4,20,true);
+    cen.setUint16(6,20,true);
+    cen.setUint32(16,crc,true);
+    cen.setUint32(20,entry.data.length,true);
+    cen.setUint32(24,entry.data.length,true);
+    cen.setUint16(28,nameBytes.length,true);
+    cen.setUint32(42,offset,true);
+    central.push(new Uint8Array(cen.buffer),nameBytes);
+    offset+=30+nameBytes.length+entry.data.length;
+  });
+  const centralBytes=concatBytes(central);
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);
+  end.setUint16(8,entries.length,true);
+  end.setUint16(10,entries.length,true);
+  end.setUint32(12,centralBytes.length,true);
+  end.setUint32(16,offset,true);
+  return concatBytes(parts.concat(central,[new Uint8Array(end.buffer)]));
+}
+function referencedAssetIds(value,ids){
+  if(typeof value==="string"){
+    const re=/safe:([A-Za-z0-9_]+)/g;
+    let found;
+    while((found=re.exec(value))) ids.add(found[1]);
+    return;
+  }
+  if(!value||typeof value!=="object") return;
+  if(Array.isArray(value)){value.forEach(item=>referencedAssetIds(item,ids));return}
+  Object.keys(value).forEach(key=>referencedAssetIds(value[key],ids));
+}
+function collectAssetIds(obj){
+  const ids=new Set();
+  referencedAssetIds(obj,ids);
+  if(obj&&obj.assets&&typeof obj.assets==="object"&&!Array.isArray(obj.assets)) Object.keys(obj.assets).forEach(id=>ids.add(id));
+  return [...ids];
+}
+function mergeAssetMeta(assets){
+  if(!assets||typeof assets!=="object"||Array.isArray(assets)) return;
+  if(!state.assets||typeof state.assets!=="object"||Array.isArray(state.assets)) state.assets={};
+  Object.keys(assets).forEach(id=>{if(!state.assets[id]) state.assets[id]=assets[id]});
+}
+async function buildSafeBytes(obj,opts){
+  const embed=!opts||opts.embed!==false;
+  const clone=JSON.parse(JSON.stringify(obj||{}));
+  const ids=collectAssetIds(clone);
+  if(ids.length){
+    if(!clone.assets||typeof clone.assets!=="object"||Array.isArray(clone.assets)) clone.assets={};
+    ids.forEach(id=>{if(state.assets&&state.assets[id]&&!clone.assets[id]) clone.assets[id]=state.assets[id]});
+  }
+  const entries=[{name:"library",data:new TextEncoder().encode(JSON.stringify(clone))}];
+  if(embed){
+    for(const id of ids){
+      const blob=assetBytes.get(id);
+      if(!blob) continue;
+      entries.push({name:"files/"+id,data:new Uint8Array(await blob.arrayBuffer())});
+    }
+  }
+  return zipStore(entries);
+}
+async function unpackSafe(bytes,keepFiles){
+  const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+  let eocd=-1;
+  for(let i=bytes.length-22;i>=Math.max(0,bytes.length-66000);i--){
+    if(view.getUint32(i,true)===0x06054b50){eocd=i;break}
+  }
+  if(eocd<0) throw new Error("bad safe");
+  const count=view.getUint16(eocd+10,true);
+  let ptr=view.getUint32(eocd+16,true);
+  let library=null;
+  const rawFiles={};
+  for(let n=0;n<count;n++){
+    if(ptr+46>bytes.length||view.getUint32(ptr,true)!==0x02014b50) throw new Error("bad safe");
+    const method=view.getUint16(ptr+10,true);
+    const compSize=view.getUint32(ptr+20,true);
+    const nameLen=view.getUint16(ptr+28,true);
+    const extraLen=view.getUint16(ptr+30,true);
+    const commentLen=view.getUint16(ptr+32,true);
+    const localOff=view.getUint32(ptr+42,true);
+    const name=new TextDecoder().decode(bytes.subarray(ptr+46,ptr+46+nameLen));
+    const localNameLen=view.getUint16(localOff+26,true);
+    const localExtra=view.getUint16(localOff+28,true);
+    const start=localOff+30+localNameLen+localExtra;
+    let raw=bytes.subarray(start,start+compSize);
+    if(method===8){
+      const stream=new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      raw=new Uint8Array(await new Response(stream).arrayBuffer());
+    }else if(method!==0) throw new Error("bad safe");
+    if(name==="library") library=JSON.parse(new TextDecoder().decode(raw));
+    else if(name.indexOf("files/")===0) rawFiles[name.slice(6)]=raw;
+    ptr+=46+nameLen+extraLen+commentLen;
+  }
+  if(!library||typeof library!=="object") throw new Error("bad safe");
+  if(keepFiles!==false){
+    const assets=library.assets||{};
+    Object.keys(rawFiles).forEach(id=>{
+      const mime=(assets[id]&&assets[id].mime)||"application/octet-stream";
+      assetBytes.set(id,new Blob([rawFiles[id]],{type:mime}));
+      const prev=assetUrls.get(id);
+      if(prev){URL.revokeObjectURL(prev);assetUrls.delete(id)}
+    });
+  }
+  return library;
+}
+function recordName(name){
+  const file=String(name||"");
+  if(/\.safe$/i.test(file)) return file;
+  if(/\.json$/i.test(file)) return file.replace(/\.json$/i,".safe");
+  return file;
+}
 async function writeJson(bucket,name,obj){
-  await writeText(bucket,name,JSON.stringify(obj,null,2));
+  const file=recordName(name);
+  await writeBytes(bucket,file,await buildSafeBytes(obj,{embed:true}));
+  return file;
 }
 async function readText(bucket,name){
   const dir=await bucketDir(bucket);
   const fh=await dir.getFileHandle(name);
   return await (await fh.getFile()).text();
 }
-async function readJson(bucket,name){
-  try{return JSON.parse(await readText(bucket,name))}catch(e){return null}
+async function readJson(bucket,name,keepFiles){
+  const file=String(name||"");
+  const safeName=/\.safe$/i.test(file)?file:file.replace(/\.json$/i,".safe");
+  const jsonName=/\.json$/i.test(file)?file:file.replace(/\.safe$/i,".json");
+  if(/\.safe$/i.test(safeName)){
+    try{return await unpackSafe(await readBytes(bucket,safeName),keepFiles)}catch(e){
+      const missing=e&&(e.name==="NotFoundError"||e.name==="NotFound");
+      if(!missing) return null;
+    }
+  }
+  try{return JSON.parse(await readText(bucket,jsonName))}catch(e){return null}
 }
 async function removeFile(bucket,name){
-  if(!name||(bucket===DIR_CURRENT&&name===CURRENT_FILE)) return;
-  try{
-    const dir=await bucketDir(bucket);
-    await dir.removeEntry(name);
-  }catch(e){}
+  if(!name) return;
+  const file=String(name);
+  const names=new Set([file]);
+  if(/\.json$/i.test(file)) names.add(file.replace(/\.json$/i,".safe"));
+  else if(/\.safe$/i.test(file)) names.add(file.replace(/\.safe$/i,".json"));
+  const dir=await bucketDir(bucket);
+  for(const item of names){
+    if(bucket===DIR_CURRENT&&(item===CURRENT_FILE||item==="当前.json"||item==="当前.js")) continue;
+    try{await dir.removeEntry(item)}catch(e){}
+  }
 }
 async function listJson(bucket){
   const dir=await bucketDir(bucket);
   const rows=[];
   for await(const [name,handle] of dir.entries()){
-    if(handle.kind!=="file"||!/\.json$/i.test(name)||name==="目录.json") continue;
+    if(handle.kind!=="file"||!/\.(json|safe)$/i.test(name)||name==="目录.json"||name==="本页.json") continue;
     let time=0;
     try{time=(await handle.getFile()).lastModified||0}catch(e){}
     rows.push({name:name,time:time});
   }
   rows.sort((a,b)=>b.time-a.time||b.name.localeCompare(a.name));
-  return rows.map(row=>row.name);
+  const names=rows.map(row=>row.name);
+  const safeStems=new Set(names.filter(name=>/\.safe$/i.test(name)).map(name=>name.replace(/\.safe$/i,"").toLowerCase()));
+  return names.filter(name=>!(/\.json$/i.test(name)&&safeStems.has(name.replace(/\.json$/i,"").toLowerCase())));
+}
+async function readLooseAssets(assets){
+  try{
+    const dir=await bucketDir(DIR_CURRENT);
+    const folder=await dir.getDirectoryHandle("附件");
+    for await(const [name,handle] of folder.entries()){
+      if(handle.kind!=="file"||assetBytes.has(name)) continue;
+      const file=await handle.getFile();
+      const meta=assets&&assets[name];
+      const type=(meta&&meta.mime)||file.type||"application/octet-stream";
+      assetBytes.set(name,new Blob([await file.arrayBuffer()],{type:type}));
+    }
+  }catch(e){}
+}
+async function writeLooseAssets(){
+  const assets=state.assets||{};
+  const ids=Object.keys(assets).filter(id=>assetBytes.has(id));
+  if(!ids.length) return;
+  const dir=await bucketDir(DIR_CURRENT);
+  const folder=await dir.getDirectoryHandle("附件",{create:true});
+  for(const id of ids){
+    const blob=assetBytes.get(id);
+    try{
+      const existing=await (await folder.getFileHandle(id)).getFile();
+      if(existing.size===blob.size) continue;
+    }catch(e){}
+    const fh=await folder.getFileHandle(id,{create:true});
+    const writable=await fh.createWritable();
+    await writable.write(blob);
+    await writable.close();
+  }
 }
 async function bindKind(bind, pickedName){
   const here=pageIdentity();
@@ -3057,6 +3489,11 @@ async function readBind(){
   if(!archiveRoot) return null;
   try{
     const fh=await archiveRoot.getFileHandle(BIND_FILE);
+    const data=await unpackSafe(new Uint8Array(await (await fh.getFile()).arrayBuffer()),false);
+    if(data&&typeof data==="object") return data;
+  }catch(e){}
+  try{
+    const fh=await archiveRoot.getFileHandle("本页.json");
     const data=JSON.parse(await (await fh.getFile()).text());
     if(!data||typeof data!=="object") return null;
     return data;
@@ -3067,10 +3504,12 @@ async function writeBind(folderName){
   const existing=await readBind();
   const keep=existing&&existing.href===pageIdentity()?existing.id:"";
   const body={id:keep||uid("inst"),href:pageIdentity(),file:pagePath(),folder:folderName||folderLabel(),boundAt:now()};
+  const bytes=await buildSafeBytes(body,{embed:false});
   const fh=await archiveRoot.getFileHandle(BIND_FILE,{create:true});
   const writable=await fh.createWritable();
-  await writable.write(JSON.stringify(body,null,2));
+  await writable.write(new Blob([bytes]));
   await writable.close();
+  try{await archiveRoot.removeEntry("本页.json")}catch(e){}
   return body;
 }
 async function htmlStampIn(dir){
@@ -3448,7 +3887,8 @@ async function writeCurrent(){
   if(!bind||!samePage(bind.href)) return false;
   try{
     const snap=snapshotForFile(state);
-    await writeJson(DIR_CURRENT,CURRENT_FILE,snap);
+    await writeBytes(DIR_CURRENT,CURRENT_FILE,await buildSafeBytes(snap,{embed:false}));
+    await writeLooseAssets();
     await writeText(DIR_CURRENT,"当前.js","window.__ARK_CURRENT="+JSON.stringify(snap)+";\n");
     window.__ARK_CURRENT=snap;
     return true;
@@ -3463,7 +3903,7 @@ async function moveCurrentToHistory(){
 async function parkInline(){
   if(!archiveRoot) return;
   for(const version of (state.versions||[]).slice()){
-    if(!version||!version.snapshot||(version.file&&/\.json$/i.test(version.file))) continue;
+    if(!version||!version.snapshot||(version.file&&/\.(json|safe)$/i.test(version.file))) continue;
     const title=version.title||version.snapshot.title||"未命名";
     const name=historyFileName("article",title);
     await writeJson(DIR_HISTORY,name,{kind:"article",id:version.id||uid("ver"),articleId:version.articleId||"",time:version.time||now(),title:title,snapshot:version.snapshot});
@@ -3490,7 +3930,10 @@ async function parkInsideLibrary(lib){
     for(const version of lib.versions){
       if(!version||!version.snapshot) continue;
       const title=version.title||version.snapshot.title||"未命名";
-      const name=version.file&&/\.json$/i.test(version.file)?version.file:historyFileName("article",title);
+      const name=version.file&&/\.(json|safe)$/i.test(version.file)?version.file:historyFileName("article",title);
+      if(/\.json$/i.test(name)){
+        try{await readText(DIR_HISTORY,name);continue}catch(e){}
+      }
       await writeJson(DIR_HISTORY,name,{kind:"article",id:version.id||uid("ver"),articleId:version.articleId||"",time:version.time||now(),title:title,snapshot:version.snapshot});
     }
   }
@@ -3512,8 +3955,8 @@ async function ensureDefaultSample(){
   if(!archiveRoot) return;
   const names=await listJson(DIR_SAMPLE);
   if(names.length) {sampleNames=names;return}
-  await writeJson(DIR_SAMPLE,"默认示例.json",snapshotForFile(defaults()));
-  sampleNames=["默认示例.json"];
+  await writeJson(DIR_SAMPLE,"默认示例.safe",snapshotForFile(defaults()));
+  sampleNames=["默认示例.safe"];
 }
 async function purgeTrashFiles(){
   if(!archiveRoot) return;
@@ -3522,7 +3965,7 @@ async function purgeTrashFiles(){
   const cutoff=Date.now()-days*86400000;
   const names=await listJson(DIR_TRASH);
   for(const name of names){
-    const doc=await readJson(DIR_TRASH,name);
+    const doc=await readJson(DIR_TRASH,name,false);
     const time=new Date(doc&&(doc.deletedAt||doc.time)||0).getTime();
     if(!Number.isNaN(time)&&time<cutoff) await removeFile(DIR_TRASH,name);
   }
@@ -3532,7 +3975,7 @@ async function scanAll(){
   const versions=[];
   const libs=[];
   for(const name of await listJson(DIR_HISTORY)){
-    const doc=await readJson(DIR_HISTORY,name);
+    const doc=await readJson(DIR_HISTORY,name,false);
     if(!doc||typeof doc!=="object") continue;
     const lib=asLibrary(doc.snapshot)||asLibrary(doc);
     const kind=classifyHistory(doc);
@@ -3550,7 +3993,7 @@ async function scanAll(){
   historyItems=libs;
   const trash=[];
   for(const name of await listJson(DIR_TRASH)){
-    const doc=await readJson(DIR_TRASH,name);
+    const doc=await readJson(DIR_TRASH,name,false);
     if(!doc||typeof doc!=="object") continue;
     const type=doc.kind==="trash"?(doc.type||"version"):(doc.kind==="library"?"library":"version");
     const payload=doc.kind==="trash"?doc.data:doc;
@@ -3562,15 +4005,27 @@ async function scanAll(){
   sampleNames=await listJson(DIR_SAMPLE);
 }
 async function readCurrentSnapshot(){
+  try{
+    const obj=await unpackSafe(await readBytes(DIR_CURRENT,"当前.safe"),true);
+    const lib=asLibrary(obj);
+    if(!lib) return "bad";
+    await readLooseAssets(lib.assets);
+    return lib;
+  }catch(e){
+    const missing=e&&(e.name==="NotFoundError"||e.name==="NotFound");
+    if(!missing) return "bad";
+  }
   let text="";
-  try{text=await readText(DIR_CURRENT,CURRENT_FILE)}
+  try{text=await readText(DIR_CURRENT,"当前.json")}
   catch(e){
     if(e&&(e.name==="NotFoundError"||e.name==="NotFound")) return null;
     return "bad";
   }
   try{
     const lib=asLibrary(JSON.parse(text));
-    return lib||"bad";
+    if(!lib) return "bad";
+    await readLooseAssets(lib.assets);
+    return lib;
   }catch(e){return "bad"}
 }
 async function reloadFromDisk(){
@@ -3586,7 +4041,7 @@ async function reloadFromDisk(){
   const cur=await readCurrentSnapshot();
   const browser=browserLibrary();
   if(cur==="bad"&&!browser){
-    toast("现有版本的 JSON 读不出来，没有改写。");
+    toast("现有版本读不出来，没有改写。");
     renderArchiveStatus();
     return false;
   }
@@ -3688,11 +4143,12 @@ function pushVersion(article){
 }
 async function loadVersionSnapshot(version){
   if(!version) return null;
-  if(version.snapshot) return version.snapshot;
-  if(snapshotCache.has(version.id)) return snapshotCache.get(version.id);
-  if(!version.file||!archiveRoot) return null;
-  const doc=await readJson(DIR_HISTORY,version.file);
-  const snap=doc&&doc.snapshot;
+  let snap=version.snapshot||(snapshotCache.has(version.id)?snapshotCache.get(version.id):null);
+  if(version.file&&archiveRoot){
+    const doc=await readJson(DIR_HISTORY,version.file,true);
+    if(doc&&doc.assets) mergeAssetMeta(doc.assets);
+    if(!snap&&doc) snap=doc.snapshot;
+  }
   if(!snap||Array.isArray(snap.articles)) return null;
   snapshotCache.set(version.id,snap);
   return snap;
@@ -3703,7 +4159,7 @@ async function restoreVersion(verId){
   const current=articleById(version.articleId);
   if(!confirm(current?"用这个版本覆盖现在的内容？":"原文不在了，按这份备份加回来？")) return;
   const raw=await loadVersionSnapshot(version);
-  if(!raw||Array.isArray(raw.articles)){toast("这份 JSON 读不出来");return}
+  if(!raw||Array.isArray(raw.articles)){toast("这份存档读不出来");return}
   if(current) await pushVersion(current);
   const snap=JSON.parse(JSON.stringify(raw));
   snap.updatedAt=now();
@@ -3733,7 +4189,7 @@ async function moveHistoryToTrash(item,type){
 }
 async function deleteVersion(id){
   const version=state.versions.find(v=>v.id===id);
-  if(!version||!confirm("删除这份旧版本？JSON 会进回收站。")) return;
+  if(!version||!confirm("删除这份旧版本？文件会进回收站。")) return;
   if(archiveRoot&&version.file){
     const ok=await moveHistoryToTrash(version,"version");
     if(!ok){toast("没移进回收站");return}
@@ -3754,7 +4210,7 @@ async function clearVersions(){
   const libs=readResetHistory();
   const versions=state.versions.slice();
   if(!versions.length&&!libs.length){toast("没有旧版本");return}
-  if(!confirm("清空全部旧版本？JSON 会留在回收站。")) return;
+  if(!confirm("清空全部旧版本？文件会留在回收站。")) return;
   if(archiveRoot){
     for(const version of versions){
       if(version.file) await moveHistoryToTrash(version,"version");
@@ -3782,11 +4238,12 @@ async function exportData(){
   const copy=snapshotForFile(state);
   copy.exportedAt=now();
   copy.schema=5;
-  const name=safeFile((copy.config&&copy.config.name)||"知识库")+"_"+fileStamp()+".json";
-  downloadBlob(new Blob([JSON.stringify(copy,null,2)],{type:"application/json"}),name);
-  log("export","下载了当前 JSON");
+  const name=safeFile((copy.config&&copy.config.name)||"知识库")+"_"+fileStamp()+".safe";
+  const bytes=await buildSafeBytes(copy,{embed:true});
+  downloadBlob(new Blob([bytes],{type:"application/octet-stream"}),name);
+  log("export","下载了当前封包");
   save();
-  toast(archiveRoot?"现有版本在「存档/现有版本」。这份 JSON 已下载。":"JSON 已下载");
+  toast(archiveRoot?"现有版本在「存档/现有版本」。这份封包已下载。":"封包已下载");
 }
 async function adoptLibrary(lib){
   await parkInsideLibrary(lib);
@@ -3841,7 +4298,7 @@ async function finishImportGrant(perm){
 async function openImportJson(){
   if(window.showOpenFilePicker){
     try{
-      const [fh]=await window.showOpenFilePicker({multiple:false,types:[{description:"JSON",accept:{"application/json":[".json"]}}]});
+      const [fh]=await window.showOpenFilePicker({multiple:false,types:[{description:"封包",accept:{"application/octet-stream":[".safe"],"application/json":[".json"]}}]});
       importData(await fh.getFile(),Promise.resolve(true));
       return;
     }catch(e){
@@ -3859,28 +4316,32 @@ function importData(file,readyPromise){
     if(input) input.value="";
     let data=null;
     try{
-      let text=String(reader.result||"");
-      if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
-      data=JSON.parse(text);
+      if(reader.result instanceof ArrayBuffer) data=await unpackSafe(new Uint8Array(reader.result),true);
+      else{
+        let text=String(reader.result||"");
+        if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+        data=JSON.parse(text);
+      }
     }catch(e){toast("这个文件读不了");return}
     const lib=asLibrary(data);
-    if(!lib){toast("这个 JSON 里没有知识列表");return}
+    if(!lib){toast("这里面没有知识列表");return}
     if(!(archiveRoot&&samePage(boundHref))) await materializeArchive(false);
     if(!(archiveRoot&&samePage(boundHref))){
       toast("存档没建好，旧内容没法进历史版本");
       return;
     }
-    if(!confirm("导入后，这份 JSON 会变成现有版本，现在的会进历史版本。")) return;
+    if(!confirm("导入后，这份会变成现有版本，现在的会进历史版本。")) return;
     enqueue(async()=>{
       await moveCurrentToHistory();
       const ok=await adoptLibrary(lib);
-      toast(ok?"已换成这份 JSON，原来的在历史版本":"没导入");
+      toast(ok?"已换成这份，原来的在历史版本":"没导入");
     });
   };
-  reader.readAsText(file);
+  if(/\.safe$/i.test(file.name)) reader.readAsArrayBuffer(file);
+  else reader.readAsText(file);
 }
 function sampleButtons(names){
-  if(!names.length) return "<p>示例文件夹是空的。把 JSON 放进「存档/示例」即可。</p>";
+  if(!names.length) return "<p>示例文件夹是空的。把封包放进「存档/示例」即可。</p>";
   return '<div style="display:flex;flex-wrap:wrap;gap:8px">'+names.map(name=>'<button class="btn" type="button" data-act="use-sample" data-id="'+esc(encodeURIComponent(name))+'">'+esc(sampleLabel(name))+"</button>").join("")+"</div>";
 }
 async function ensureImportArchive(){
@@ -3902,7 +4363,7 @@ async function resetData(){
     const names=await listJson(DIR_SAMPLE);
     const bind=await readBind();
     const where=(bind&&bind.folder)||folderLabel();
-    openModal("选择文件夹","<p style=\"margin:0 0 12px;color:var(--muted)\">当前只使用「"+esc(where)+"」。下面是这一份「存档/示例」里的 JSON，不会列出另一份文件夹。</p>"+sampleButtons(names),"关闭",closeModal);
+    openModal("选择文件夹","<p style=\"margin:0 0 12px;color:var(--muted)\">当前只使用「"+esc(where)+"」。下面是这一份「存档/示例」里的存档，不会列出另一份文件夹。</p>"+sampleButtons(names),"关闭",closeModal);
   });
 }
 async function restoreBuiltIn(){
@@ -3915,7 +4376,7 @@ async function restoreBuiltIn(){
     try{await ensureDefaultSample()}catch(e){}
   }
   const wrote=!!(ok&&archiveRoot&&samePage(boundHref));
-  toast(!ok?"没换上":wrote?"已恢复「"+where+"」，JSON 已写入旁边的存档":"已恢复「"+where+"」");
+  toast(!ok?"没换上":wrote?"已恢复「"+where+"」，封包已写入旁边的存档":"已恢复「"+where+"」");
 }
 async function useSample(encoded){
   let name="";
@@ -3941,7 +4402,7 @@ async function deleteLibraryHistory(id){
   const item=readResetHistory().find(entry=>entry.id===id);
   if(!item) return;
   await ensureWritableArchive(true);
-  if(!confirm("删除这份整库？JSON 会进回收站。")) return;
+  if(!confirm("删除这份整库？文件会进回收站。")) return;
   if(archiveRoot&&(item.file||item.snapshot)){
     const ok=await moveHistoryToTrash(item,"library");
     if(!ok){toast("没移进回收站");return}
@@ -3961,10 +4422,14 @@ async function restoreLibraryHistory(id){
   if(!item) return;
   await ensureWritableArchive(true);
   if(!confirm("用这份整库换掉现在的内容？现在的会先进历史版本。")) return;
+  if(item.file&&archiveRoot){
+    const packed=await readJson(DIR_HISTORY,item.file,true);
+    if(packed&&packed.assets) mergeAssetMeta(packed.assets);
+  }
   const inline=asLibrary(item.snapshot);
   const doc=inline?null:(item.file?await readJson(DIR_HISTORY,item.file):null);
   const lib=inline||(doc&&asLibrary(doc.snapshot||doc));
-  if(!lib){toast("这份 JSON 读不出来");return}
+  if(!lib){toast("这份存档读不出来");return}
   await enqueue(async()=>{
     await moveCurrentToHistory();
     const ok=await adoptLibrary(lib);
@@ -3995,7 +4460,7 @@ async function restoreTrash(id){
   if(!item) return;
   if(archiveRoot&&item.file){
     const doc=await readJson(DIR_TRASH,item.file);
-    if(!doc){toast("这份 JSON 读不出来");return}
+    if(!doc){toast("这份存档读不出来");return}
     const type=doc.kind==="trash"?(doc.type||item.type):(doc.kind==="library"?"library":"version");
     const payload=doc.kind==="trash"?doc.data:doc;
     if(type==="version"||type==="library"||doc.kind==="article"||doc.kind==="library"){
@@ -4012,21 +4477,21 @@ async function restoreTrash(id){
     }
     const data=payload||{};
     if(type==="article"){
-      if(!data.id&&!data.title&&!data.documentTree){toast("这份 JSON 读不出来");return}
+      if(!data.id&&!data.title&&!data.documentTree){toast("这份存档读不出来");return}
       if(data.id&&state.articles.some(article=>article.id===data.id)){toast("库里已经有这一条了");return}
       if(data.categoryId&&!state.categories.some(c=>c.id===data.categoryId)) data.categoryId="";
       state.articles.unshift(data);
     }else if(type==="category"){
-      if(!data.id){toast("这份 JSON 读不出来");return}
+      if(!data.id){toast("这份存档读不出来");return}
       if(state.categories.some(c=>c.id===data.id)){toast("这个分类还在");return}
       if(data.parentId&&!state.categories.some(c=>c.id===data.parentId)) data.parentId=null;
       state.categories.push(data);
     }else if(type==="tag"){
-      if(!data.id){toast("这份 JSON 读不出来");return}
+      if(!data.id){toast("这份存档读不出来");return}
       if(state.tags.some(tag=>tag.id===data.id)){toast("这个标签还在");return}
       state.tags.push(data);
     }else if(type==="navigation"){
-      if(!data.id){toast("这份 JSON 读不出来");return}
+      if(!data.id){toast("这份存档读不出来");return}
       if(state.navigation.some(nav=>nav.id===data.id)){toast("这个导航还在");return}
       state.navigation.push(data);
     }else{toast("这种类型恢复不了");return}
@@ -4045,24 +4510,24 @@ async function restoreTrash(id){
   }else if(item.type==="library"&&asLibrary(inline.snapshot||inline)){
     historyItems.unshift({id:inline.id||uid("lib"),file:"",time:inline.time||item.deletedAt,title:"整库",kind:"library"});
   }else if(item.type==="article"){
-    if(!inline.id&&!inline.title&&!inline.documentTree){toast("这份 JSON 读不出来");return}
+    if(!inline.id&&!inline.title&&!inline.documentTree){toast("这份存档读不出来");return}
     if(inline.id&&state.articles.some(article=>article.id===inline.id)){toast("库里已经有这一条了");return}
     if(inline.categoryId&&!state.categories.some(c=>c.id===inline.categoryId)) inline.categoryId="";
     state.articles.unshift(inline);
   }else if(item.type==="category"){
-    if(!inline.id){toast("这份 JSON 读不出来");return}
+    if(!inline.id){toast("这份存档读不出来");return}
     if(state.categories.some(c=>c.id===inline.id)){toast("这个分类还在");return}
     if(inline.parentId&&!state.categories.some(c=>c.id===inline.parentId)) inline.parentId=null;
     state.categories.push(inline);
   }else if(item.type==="tag"){
-    if(!inline.id){toast("这份 JSON 读不出来");return}
+    if(!inline.id){toast("这份存档读不出来");return}
     if(state.tags.some(tag=>tag.id===inline.id)){toast("这个标签还在");return}
     state.tags.push(inline);
   }else if(item.type==="navigation"){
-    if(!inline.id){toast("这份 JSON 读不出来");return}
+    if(!inline.id){toast("这份存档读不出来");return}
     if(state.navigation.some(nav=>nav.id===inline.id)){toast("这个导航还在");return}
     state.navigation.push(inline);
-  }else{toast("这份 JSON 读不出来");return}
+  }else{toast("这份存档读不出来");return}
   state.trash=state.trash.filter(entry=>entry.id!==id);
   log("restore","恢复："+item.name);
   save();
@@ -4073,7 +4538,7 @@ async function permanentDelete(id){
   const item=state.trash.find(entry=>entry.id===id);
   if(!item) return;
   await ensureWritableArchive(true);
-  if(!confirm("永久删除「"+item.name+"」？JSON 文件也会删掉。")) return;
+  if(!confirm("永久删除「"+item.name+"」？文件也会删掉。")) return;
   if(archiveRoot&&item.file) await removeFile(DIR_TRASH,item.file);
   state.trash=state.trash.filter(entry=>entry.id!==id);
   log("purge","永久删除："+item.name);
@@ -4084,7 +4549,7 @@ async function permanentDelete(id){
 async function emptyTrash(){
   if(!state.trash.length){toast("回收站是空的");return}
   await ensureWritableArchive(true);
-  if(!confirm("清空回收站？JSON 文件也会删掉。")) return;
+  if(!confirm("清空回收站？文件也会删掉。")) return;
   const gone=state.trash.slice();
   if(archiveRoot){
     for(const item of gone){if(item.file) await removeFile(DIR_TRASH,item.file)}
@@ -4119,7 +4584,7 @@ function purgeExpired(manual){
 }
 function archiveStatusText(){
   const where=prettyPlace();
-  if(archiveRoot&&boundHref===pageIdentity()) return "当前文件夹「"+folderLabel()+"」已打开，内容在旁边的 JSON。位置："+where;
+  if(archiveRoot&&boundHref===pageIdentity()) return "当前文件夹「"+folderLabel()+"」已打开，内容在旁边的存档。位置："+where;
   if(sideLoaded) return "已匹配本页旁边的存档。位置："+where;
   return "本页旁边还没有读到存档。位置："+where;
 }
