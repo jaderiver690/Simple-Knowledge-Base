@@ -524,7 +524,7 @@ html[data-density="compact"] .article-row{padding:8px}
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
 <div class="command" id="commandBg" onclick="if(event.target===this)closeCommand()"><div class="command-box"><input class="command-input" id="commandInput" placeholder="搜索" oninput="renderCommands(true)"><div class="commands" id="commands"></div></div></div>
 <div class="toast" id="toast"></div>
-<script type="application/json" id="kb-place">{"id":"inst_mv2khmy7_c2qqxo","href":"file:///C:/Users/13031/Desktop/JadeRiver知识库/JadeRiver知识库.html","folder":"JadeRiver知识库"}</script>
+<script type="application/json" id="kb-place">{"id":"inst_mv2kpxcr_ugdkas","href":"file:///C:/Users/13031/Desktop/JadeRiver知识库/JadeRiver知识库.html","folder":"JadeRiver知识库"}</script>
 <script src="存档/现有版本/当前.js"></script>
 <script>
 const pristine=document.documentElement.cloneNode(true);
@@ -1285,6 +1285,28 @@ function snippetAround(text,q){
   const end=Math.min(raw.length,at+q.length+72);
   return (start?"…":"")+raw.slice(start,end)+(end<raw.length?"…":"");
 }
+function occurrenceAt(text,q){
+  const raw=String(text||"");
+  const lower=raw.toLowerCase();
+  const want=String(q||"").toLowerCase();
+  const at=[];
+  if(!want) return at;
+  let i=0;
+  while(i<raw.length){
+    const found=lower.indexOf(want,i);
+    if(found<0) break;
+    at.push(found);
+    i=found+want.length;
+  }
+  return at;
+}
+function snippetAt(text,q,at){
+  const raw=String(text||"");
+  const start=Math.max(0,at-36);
+  const end=Math.min(raw.length,at+String(q||"").length+72);
+  const slice=raw.slice(start,end).replace(/\s+/g," ").trim();
+  return (start?"…":"")+slice+(end<raw.length?"…":"");
+}
 function highlightSearch(text,q){
   const raw=String(text||"");
   const needle=String(q||"");
@@ -1303,30 +1325,30 @@ function highlightSearch(text,q){
 function getGlobalSearchMatches(q){
   q=String(q||"").trim().toLowerCase();
   if(!q) return [];
-  const result=[];
+  const titleGroups=[];
+  const bodyGroups=[];
   state.articles.filter(a=>!a.archived).forEach(article=>{
     normalizeDocumentTree(article);
-    const seen=new Set();
+    let rootSeen=false;
     walkDocumentNodes(article.documentTree,node=>{
       const title=String(node.title||"");
-      const body=String(node.content||"");
+      const body=String(node.content||"").replace(/!\[[^\]]*\]\(data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+\)/g," ");
       const inTitle=title.toLowerCase().includes(q);
-      const inBody=body.toLowerCase().includes(q);
-      if(!inTitle&&!inBody) return;
-      seen.add(node.id);
-      result.push({
-        article:article,
-        node:node,
-        source:inTitle&&inBody?"标题和正文":inTitle?"标题":"正文",
-        snippet:snippetAround(inBody?body:title,q)
-      });
+      const places=occurrenceAt(body,q);
+      if(!inTitle&&!places.length) return;
+      if(article.documentTree[0]&&node.id===article.documentTree[0].id) rootSeen=true;
+      const rows=[];
+      if(inTitle) rows.push({article:article,node:node,source:"标题",snippet:snippetAround(title,q),hit:"title"});
+      places.forEach((at,index)=>rows.push({article:article,node:node,source:"正文",snippet:snippetAt(body,q,at),hit:String(index),place:index+1}));
+      (inTitle?titleGroups:bodyGroups).push(rows);
     });
     const summary=String(article.summary||"");
-    if(summary.toLowerCase().includes(q)&&article.documentTree[0]&&!seen.has(article.documentTree[0].id)){
-      result.push({article:article,node:article.documentTree[0],source:"摘要",snippet:snippetAround(summary,q)});
+    const root=article.documentTree&&article.documentTree[0];
+    if(summary.toLowerCase().includes(q)&&root&&!rootSeen){
+      bodyGroups.push([{article:article,node:root,source:"摘要",snippet:snippetAround(summary,q),hit:"summary"}]);
     }
   });
-  return result;
+  return titleGroups.concat(bodyGroups).flat();
 }
 function closeSearchDrop(){
   const drop=document.getElementById("searchDrop");
@@ -1338,7 +1360,10 @@ function renderSearchDrop(q){
   q=String(q||"").trim();
   if(!q){closeSearchDrop();return}
   const hits=getGlobalSearchMatches(q).slice(0,8);
-  let html=hits.map(hit=>'<button type="button" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'" data-q="'+esc(q)+'"><b>'+esc(hit.node.title||"未命名")+'</b><span class="drop-meta">'+esc(hit.article.title)+" · "+esc(hit.source)+"</span></button>").join("");
+  let html=hits.map(hit=>{
+    const where=hit.place?" · 第 "+hit.place+" 处":"";
+    return '<button type="button" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'" data-q="'+esc(q)+'" data-hit="'+esc(hit.hit)+'"><b>'+esc(hit.node.title||"未命名")+'</b><span class="drop-meta">'+esc(hit.article.title)+" · "+esc(hit.source)+where+"</span>"+(hit.source==="正文"?'<span class="drop-meta">'+esc(hit.snippet)+"</span>":"")+"</button>";
+  }).join("");
   html+='<button type="button" data-act="jump-search">查看全部结果</button>';
   drop.innerHTML=html;
   drop.classList.add("show");
@@ -1365,9 +1390,12 @@ function renderGlobalSearch(q){
   }
   const matches=getGlobalSearchMatches(q);
   summary.textContent="找到 "+matches.length+" 处";
-  results.innerHTML=matches.length?matches.map(hit=>'<div class="search-result" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'" data-q="'+esc(q)+'">'
-    +'<div class="search-result-top"><span class="tree-level">H'+hit.node.level+'</span><span class="search-result-title">'+highlightSearch(hit.node.title,q)+'</span><span class="search-result-path">'+esc(hit.article.title)+" · "+esc(hit.source)+(hit.article.status==="draft"?" · 草稿":"")+"</span></div>"
-    +'<div class="search-result-snippet">'+highlightSearch(hit.snippet,q)+"</div></div>").join(""):'<div class="search-empty">没有匹配的标题或正文。</div>';
+  results.innerHTML=matches.length?matches.map(hit=>{
+    const where=hit.place?" · 第 "+hit.place+" 处":"";
+    return '<div class="search-result" data-act="open-node" data-article="'+esc(hit.article.id)+'" data-node="'+esc(hit.node.id)+'" data-q="'+esc(q)+'" data-hit="'+esc(hit.hit)+'">'
+      +'<div class="search-result-top"><span class="tree-level">H'+hit.node.level+'</span><span class="search-result-title">'+highlightSearch(hit.node.title,q)+'</span><span class="search-result-path">'+esc(hit.article.title)+" · "+esc(hit.source)+where+(hit.article.status==="draft"?" · 草稿":"")+"</span></div>"
+      +(hit.source==="标题"?"":'<div class="search-result-snippet">'+highlightSearch(hit.snippet,q)+"</div>")+"</div>";
+  }).join(""):'<div class="search-empty">没有匹配的标题或正文。</div>';
 }
 
 function renderDashboard(){
@@ -1635,8 +1663,23 @@ function renderTreeHtml(article,skipRoot){
   walk(article.documentTree,!!skipRoot);
   return html;
 }
+function renderOneNodeHtml(article,nodeId){
+  const hit=findDocumentNode(article,nodeId);
+  if(!hit) return renderTreeHtml(article,true);
+  const node=hit.node;
+  const isRoot=article.documentTree[0]&&article.documentTree[0].id===node.id;
+  let html="";
+  if(isRoot) html='<div data-node-id="'+esc(node.id)+'" id="h_'+esc(node.id)+'"></div>';
+  else{
+    const level=Math.max(2,Math.min(6,Number(node.level)||2));
+    html="<h"+level+' data-node-id="'+esc(node.id)+'" id="h_'+esc(node.id)+'">'+esc(node.title||"未命名")+"</h"+level+">";
+  }
+  if(node.content) html+=md(node.content);
+  return html;
+}
 function openArticle(id,opts){
   const record=!opts||opts.record!==false;
+  const onlyNode=opts&&opts.nodeId;
   if(record&&!leaveEditor()) return;
   const article=articleById(id);
   if(!article){toast("没找到这篇文章");return}
@@ -1670,7 +1713,7 @@ function openArticle(id,opts){
     +'<button class="btn" type="button" data-act="copy-link" data-id="'+esc(article.id)+'">复制链接</button>'
     +'<button class="btn" type="button" data-act="print-article">打印</button>'
     +'<button class="btn danger" type="button" data-act="delete-article" data-id="'+esc(article.id)+'">删除</button></div>'
-    +"<div>"+tagHtml(article.tagIds)+'</div><div id="toc" class="toc"></div><div class="article-content" id="articleContent">'+renderTreeHtml(article,true)+"</div>"
+    +"<div>"+tagHtml(article.tagIds)+'</div><div id="toc" class="toc"></div><div class="article-content" id="articleContent">'+(onlyNode?renderOneNodeHtml(article,onlyNode):renderTreeHtml(article,true))+"</div>"
     +(related.length?'<div class="card" style="margin-top:25px"><div class="card-title">相关</div>'+related.map(articleRow).join("")+"</div>":"")
     +(backlinks.length?'<div class="card" style="margin-top:15px"><div class="card-title">提到这篇的</div>'+backlinks.map(articleRow).join("")+"</div>":"")
     +"</article>";
@@ -1696,42 +1739,53 @@ function buildToc(){
     if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
   };
 }
-function markFirstText(root,query){
+function markNthText(root,query,nth,skip){
   const want=String(query||"");
   const lower=want.toLowerCase();
+  const n=Math.max(0,Number(nth)||0);
   if(!root||!lower) return null;
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-  let node;
+  let seen=0,node;
   while((node=walker.nextNode())){
+    if(skip&&skip.contains(node)) continue;
     const text=node.nodeValue||"";
-    const at=text.toLowerCase().indexOf(lower);
-    if(at<0) continue;
-    try{
-      const range=document.createRange();
-      range.setStart(node,at);
-      range.setEnd(node,at+want.length);
-      const mark=document.createElement("mark");
-      mark.className="search-highlight";
-      range.surroundContents(mark);
-      return mark;
-    }catch(e){return null}
+    const textLower=text.toLowerCase();
+    let from=0;
+    while(from<text.length){
+      const at=textLower.indexOf(lower,from);
+      if(at<0) break;
+      if(seen===n){
+        try{
+          const range=document.createRange();
+          range.setStart(node,at);
+          range.setEnd(node,at+want.length);
+          const mark=document.createElement("mark");
+          mark.className="search-highlight";
+          range.surroundContents(mark);
+          return mark;
+        }catch(e){return null}
+      }
+      seen++;
+      from=at+want.length;
+    }
   }
   return null;
 }
-function openArticleNode(articleId,nodeId,query){
-  openArticle(articleId);
+function openArticleNode(articleId,nodeId,query,hit){
+  openArticle(articleId,{nodeId:nodeId});
   const content=document.getElementById("articleContent");
   const target=[...document.querySelectorAll("#articleContent [data-node-id]")].find(el=>el.dataset.nodeId===nodeId);
   const q=String(query||"").trim();
   let mark=null;
-  if(q){
-    let el=target?target.nextElementSibling:content&&content.firstElementChild;
-    while(el&&!el.getAttribute("data-node-id")){
-      mark=markFirstText(el,q);
-      if(mark) break;
-      el=el.nextElementSibling;
-    }
-    if(!mark&&target) mark=markFirstText(target,q);
+  if(q&&hit==="title"){
+    const article=articleById(articleId);
+    const isRoot=!!(article&&article.documentTree[0]&&article.documentTree[0].id===nodeId);
+    mark=markNthText(isRoot?document.querySelector("#articleContainer .article-head h1"):target,q,0);
+  }else if(q&&hit==="summary"){
+    mark=markNthText(document.querySelector("#articleContainer .article-summary"),q,0);
+  }else if(q){
+    const n=hit===undefined||hit===""?0:Number(hit);
+    mark=markNthText(content,q,Number.isFinite(n)?n:0,target);
   }
   if(!target&&!mark) return;
   const focus=mark||target;
@@ -2931,7 +2985,7 @@ function handleAction(el){
   else if(act==="pin") togglePin(id);
   else if(act==="new-article") openArticleEditor();
   else if(act==="open-home") showHomeNode(el.dataset.article,el.dataset.node);
-  else if(act==="open-node"){closeSearchDrop();openArticleNode(el.dataset.article,el.dataset.node,el.dataset.q||"")}
+  else if(act==="open-node"){closeSearchDrop();openArticleNode(el.dataset.article,el.dataset.node,el.dataset.q||"",el.dataset.hit)}
   else if(act==="jump-search") jumpSearch(document.getElementById("globalSearch").value.trim());
   else if(act==="go-back") showView(lastView||"home");
   else if(act==="edit-body") editInManager(id);
