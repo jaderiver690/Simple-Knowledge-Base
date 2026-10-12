@@ -524,7 +524,7 @@ html[data-density="compact"] .article-row{padding:8px}
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
 <div class="command" id="commandBg" onclick="if(event.target===this)closeCommand()"><div class="command-box"><input class="command-input" id="commandInput" placeholder="搜索" oninput="renderCommands(true)"><div class="commands" id="commands"></div></div></div>
 <div class="toast" id="toast"></div>
-<script type="application/json" id="kb-place">{"id":"inst_mv2kpxcr_ugdkas","href":"file:///C:/Users/老铁666/Desktop/知识库/知识库.html","folder":"知识库"}</script>
+<script type="application/json" id="kb-place">{"id":"inst_mv3nm496_8jo0ol","href":"file:///C:/Users/老铁666/Desktop/知识库/知识库.html","folder":"知识库"}</script>
 <script src="存档/现有版本/当前.js"></script>
 <script>
 const pristine=document.documentElement.cloneNode(true);
@@ -937,6 +937,7 @@ function load(){
   pendingCarry=[];
   repaired=false;
   normalize();
+  hydrateAssets(state.assets);
   applyConfig();
   purgeExpired(false);
   archiveMigrated=false;
@@ -1548,6 +1549,7 @@ async function bulkAction(type){
 }
 
 function assetBlobUrl(id){
+  if(!assetBytes.has(id)) hydrateAssets(state&&state.assets);
   const blob=assetBytes.get(id);
   if(!blob) return "";
   let url=assetUrls.get(id);
@@ -1556,8 +1558,8 @@ function assetBlobUrl(id){
 }
 function assetImageHtml(alt,id){
   const url=assetBlobUrl(id);
-  const img=url?'<img alt="'+alt+'" src="'+url+'">':'<span class="asset-missing">'+(alt||"图片")+"</span>";
-  return img+' <button type="button" class="btn" data-act="download-asset" data-id="'+id+'">下载</button>';
+  if(url) return '<img alt="'+alt+'" src="'+url+'">';
+  return '<span class="asset-missing">'+(alt||"图片")+"还没读到</span>";
 }
 function assetLinkHtml(label,id){
   return '<button type="button" class="btn" data-act="download-asset" data-id="'+id+'">下载 '+(label||"附件")+"</button>";
@@ -2156,9 +2158,21 @@ function rememberAsset(id,blob,meta){
   assetUrls.delete(id);
   assetBytes.set(id,blob);
 }
-async function storeAsset(file){
+function imageMime(file){
+  const type=String(file&&file.type||"");
+  if(/^image\//.test(type)) return type;
+  const name=String(file&&file.name||"").toLowerCase();
+  if(name.endsWith(".png")) return "image/png";
+  if(name.endsWith(".jpg")||name.endsWith(".jpeg")) return "image/jpeg";
+  if(name.endsWith(".gif")) return "image/gif";
+  if(name.endsWith(".webp")) return "image/webp";
+  if(name.endsWith(".bmp")) return "image/bmp";
+  if(name.endsWith(".svg")) return "image/svg+xml";
+  return "";
+}
+async function storeAsset(file,mime){
   const id=uid("file");
-  rememberAsset(id,file,{name:file.name||"未命名",mime:file.type||"application/octet-stream",size:file.size||0});
+  rememberAsset(id,file,{name:file.name||"未命名",mime:mime||file.type||"application/octet-stream",size:file.size||0});
   return id;
 }
 function insertAtCursor(el,text){
@@ -2224,9 +2238,10 @@ async function onNodeFiles(){
   if(!files.length) return;
   const chunks=[];
   for(const file of files){
-    const id=await storeAsset(file);
+    const mime=imageMime(file);
+    const id=await storeAsset(file,mime);
     const name=String(file.name||"附件").replace(/[\[\]\(\)]/g,"");
-    if(/^image\//.test(file.type||"")) chunks.push("![](safe:"+id+")");
+    if(mime) chunks.push("![](safe:"+id+")");
     else chunks.push("["+name+"](safe:"+id+")");
   }
   insertAtCursor(document.getElementById("nodeBody"),chunks.join("\n\n"));
@@ -2829,6 +2844,7 @@ function applyLibrary(data){
   state=data;
   repaired=false;
   normalize();
+  hydrateAssets(state.assets);
   if(!save()){
     state=previous;
     repaired=false;
@@ -2854,6 +2870,7 @@ function downloadBlob(blob,name){
   setTimeout(()=>URL.revokeObjectURL(link.href),1000);
 }
 function downloadAsset(id){
+  if(!assetBytes.has(id)) hydrateAssets(state&&state.assets);
   const blob=assetBytes.get(id);
   const meta=state.assets&&state.assets[id];
   if(!blob){toast("附件还没读到");return}
@@ -3379,20 +3396,56 @@ function mergeAssetMeta(assets){
   if(!state.assets||typeof state.assets!=="object"||Array.isArray(state.assets)) state.assets={};
   Object.keys(assets).forEach(id=>{if(!state.assets[id]) state.assets[id]=assets[id]});
 }
+function base64ToBytes(data){
+  const bin=atob(String(data||""));
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return bytes;
+}
+function hydrateAssets(assets){
+  const map=assets||{};
+  Object.keys(map).forEach(id=>{
+    if(assetBytes.has(id)) return;
+    const item=map[id];
+    if(!item||!item.data) return;
+    try{assetBytes.set(id,new Blob([base64ToBytes(item.data)],{type:item.mime||"application/octet-stream"}))}catch(e){}
+  });
+}
 async function buildSafeBytes(obj,opts){
   const embed=!opts||opts.embed!==false;
-  const clone=JSON.parse(JSON.stringify(obj||{}));
-  const ids=collectAssetIds(clone);
-  if(ids.length){
-    if(!clone.assets||typeof clone.assets!=="object"||Array.isArray(clone.assets)) clone.assets={};
-    ids.forEach(id=>{if(state.assets&&state.assets[id]&&!clone.assets[id]) clone.assets[id]=state.assets[id]});
+  if(!obj.assets||typeof obj.assets!=="object"||Array.isArray(obj.assets)) obj.assets={};
+  const ids=collectAssetIds(obj);
+  for(const id of ids){
+    if(!obj.assets[id]&&state.assets&&state.assets[id]) obj.assets[id]=JSON.parse(JSON.stringify(state.assets[id]));
+    const blob=assetBytes.get(id);
+    if(!obj.assets[id]&&blob) obj.assets[id]={name:"附件",mime:blob.type||"application/octet-stream",size:blob.size||0};
+    const meta=obj.assets[id];
+    if(!meta||!blob) continue;
+    if(!meta.mime) meta.mime=blob.type||"application/octet-stream";
+    if(!meta.size) meta.size=blob.size||0;
+    if(!meta.name) meta.name="附件";
+    if(!meta.data){
+      try{
+        const dataUrl=await fileToDataUrl(blob);
+        const comma=dataUrl.indexOf(",");
+        meta.data=comma>=0?dataUrl.slice(comma+1):"";
+      }catch(e){}
+    }
   }
+  const clone=JSON.parse(JSON.stringify(obj));
   const entries=[{name:"library",data:new TextEncoder().encode(JSON.stringify(clone))}];
   if(embed){
     for(const id of ids){
+      let bytes=null;
       const blob=assetBytes.get(id);
-      if(!blob) continue;
-      entries.push({name:"files/"+id,data:new Uint8Array(await blob.arrayBuffer())});
+      if(blob){
+        try{bytes=new Uint8Array(await blob.arrayBuffer())}catch(e){bytes=null}
+      }
+      if(!bytes&&clone.assets[id]&&clone.assets[id].data){
+        try{bytes=base64ToBytes(clone.assets[id].data)}catch(e){bytes=null}
+      }
+      if(!bytes) continue;
+      entries.push({name:"files/"+id,data:bytes});
     }
   }
   return zipStore(entries);
@@ -3401,7 +3454,13 @@ async function unpackSafe(bytes,keepFiles){
   const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
   let eocd=-1;
   for(let i=bytes.length-22;i>=Math.max(0,bytes.length-66000);i--){
-    if(view.getUint32(i,true)===0x06054b50){eocd=i;break}
+    if(view.getUint32(i,true)!==0x06054b50) continue;
+    const commentLen=view.getUint16(i+20,true);
+    if(i+22+commentLen!==bytes.length) continue;
+    const cdOff=view.getUint32(i+16,true);
+    if(cdOff+46>bytes.length||view.getUint32(cdOff,true)!==0x02014b50) continue;
+    eocd=i;
+    break;
   }
   if(eocd<0) throw new Error("bad safe");
   const count=view.getUint16(eocd+10,true);
@@ -3941,7 +4000,7 @@ async function writeCurrent(){
   if(!bind||!samePage(bind.href)) return false;
   try{
     const snap=snapshotForFile(state);
-    await writeBytes(DIR_CURRENT,CURRENT_FILE,await buildSafeBytes(snap,{embed:false}));
+    await writeBytes(DIR_CURRENT,CURRENT_FILE,await buildSafeBytes(snap,{embed:true}));
     await writeLooseAssets();
     await writeText(DIR_CURRENT,"当前.js","window.__ARK_CURRENT="+JSON.stringify(snap)+";\n");
     window.__ARK_CURRENT=snap;
@@ -4109,6 +4168,7 @@ async function reloadFromDisk(){
     state=JSON.parse(JSON.stringify(chosen));
     repaired=false;
     normalize();
+    hydrateAssets(state.assets);
     applyConfig();
   }
   diskReady=true;
@@ -4310,6 +4370,7 @@ async function adoptLibrary(lib){
   state=data;
   repaired=false;
   normalize();
+  hydrateAssets(state.assets);
   const wrote=archiveRoot?await writeCurrent():false;
   if(!wrote){toast("没写进现有版本");return false}
   diskReady=true;
