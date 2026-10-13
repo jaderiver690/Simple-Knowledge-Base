@@ -134,13 +134,27 @@ button{cursor:pointer}
 .article-content code{background:var(--panel2);padding:2px 5px;border-radius:5px}
 .article-content pre{background:#111827;color:#e5e7eb;padding:15px;border-radius:12px;overflow:auto}
 .article-content pre code{background:transparent;color:inherit;padding:0}
-.article-content img{max-width:100%;border-radius:12px}
+.article-content img{max-width:100%;border-radius:12px;cursor:zoom-in}
+.pic-view{position:fixed;inset:0;z-index:280;background:#0b1016f2;display:flex;flex-direction:column}
+.pic-view[hidden]{display:none!important}
+.pic-bar{display:flex;gap:8px;align-items:center;padding:12px 16px;color:#fff}
+.pic-bar strong{margin-right:auto;font-size:14px;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pic-bar button{background:#1c2430;color:#fff;border:1px solid #334155}
+.pic-stage{flex:1;min-height:0;overflow:hidden;display:grid;place-items:center;cursor:grab}
+.pic-stage img.pic-zoom{max-width:min(92vw,1200px);max-height:78vh;transform-origin:center center;user-select:none}
+.pic-stage iframe,.pic-stage video{width:min(1100px,94vw);height:min(78vh,820px);background:#fff;border:0;border-radius:12px}
+.pic-stage audio{width:min(640px,90vw)}
+.pic-text{width:min(980px,94vw);max-height:78vh;overflow:auto;background:#fff;color:#16202a;border-radius:12px;padding:18px;white-space:pre-wrap}
+.pic-sheet{width:min(1100px,94vw);max-height:78vh;overflow:auto;background:#fff;color:#16202a;border-radius:12px;padding:12px}
+.pic-sheet table{border-collapse:collapse}
+.pic-sheet td{border:1px solid #e4e9ef;padding:4px 8px;font-size:13px;vertical-align:top}
 .article-content ul,.article-content ol{padding-left:1.3em}
 .article-content hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .article-content table{border-collapse:collapse;width:100%;margin:12px 0}
 .article-content th,.article-content td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}
 .article-content th{background:var(--panel2)}
 .article-content .asset-missing{color:var(--muted)}
+.asset-file{display:inline-flex;gap:8px;align-items:center;margin:4px 0}
 .article-actions{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0}
 .toc{border:1px solid var(--line);background:var(--panel2);padding:15px;border-radius:13px;margin:18px 0}
 .toc a{display:block;color:var(--muted);font-size:13px;text-decoration:none;padding:3px 0}
@@ -250,7 +264,7 @@ html[data-density="compact"] .article-row{padding:8px}
 }
 @page{size:A4;margin:16mm}
 @media print{
-  .sidebar,.topbar,.toast,.modal-bg,.command,.search-drop,.article-actions,.head-actions,.toolbar,.nav-item,#homeReaderNext,[data-act="download-asset"]{display:none!important}
+  .sidebar,.topbar,.toast,.modal-bg,.command,.search-drop,.article-actions,.head-actions,.toolbar,.nav-item,#homeReaderNext,.pic-view,[data-act="download-asset"],[data-act="preview-asset"]{display:none!important}
   .main{margin:0!important;width:auto!important}
   .content{padding:0;max-width:none}
   .view{display:none!important}
@@ -522,6 +536,7 @@ html[data-density="compact"] .article-row{padding:8px}
 </div>
 
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
+<div class="pic-view" id="picView" hidden><div class="pic-bar"><strong id="picTitle">图片</strong><button type="button" data-act="pic-zoom" data-dir="-1">缩小</button><button type="button" data-act="pic-zoom" data-dir="1">放大</button><button type="button" data-act="pic-fit">适合窗口</button><span id="picScale">100%</span><button type="button" data-act="pic-close">关闭</button></div><div class="pic-stage" id="picStage"></div></div>
 <div class="command" id="commandBg" onclick="if(event.target===this)closeCommand()"><div class="command-box"><input class="command-input" id="commandInput" placeholder="搜索" oninput="renderCommands(true)"><div class="commands" id="commands"></div></div></div>
 <div class="toast" id="toast"></div>
 <script type="application/json" id="kb-place">{"id":"inst_mv3nm496_8jo0ol","href":"file:///C:/Users/老铁666/Desktop/知识库/知识库.html","folder":"知识库"}</script>
@@ -1562,7 +1577,8 @@ function assetImageHtml(alt,id){
   return '<span class="asset-missing">'+(alt||"图片")+"还没读到</span>";
 }
 function assetLinkHtml(label,id){
-  return '<button type="button" class="btn" data-act="download-asset" data-id="'+id+'">下载 '+(label||"附件")+"</button>";
+  const name=label||"附件";
+  return '<span class="asset-file"><button type="button" class="btn" data-act="preview-asset" data-id="'+id+'">预览</button><button type="button" class="btn" data-act="download-asset" data-id="'+id+'">下载 '+name+"</button></span>";
 }
 function inlineFormat(raw){
   return String(raw??"").split(/(`[^`\n]+`)/).map(part=>{
@@ -2869,6 +2885,157 @@ function downloadBlob(blob,name){
   link.remove();
   setTimeout(()=>URL.revokeObjectURL(link.href),1000);
 }
+let picZoom=1,picX=0,picY=0,picDrag=null;
+function paintPic(){
+  const img=document.querySelector("#picStage img.pic-zoom");
+  const label=document.getElementById("picScale");
+  if(label) label.textContent=Math.round(picZoom*100)+"%";
+  if(img) img.style.transform="translate("+picX+"px,"+picY+"px) scale("+picZoom+")";
+}
+function setPicTools(on){
+  document.querySelectorAll("[data-act='pic-zoom'],[data-act='pic-fit'],#picScale").forEach(el=>{el.hidden=!on});
+}
+function closePicture(){
+  const box=document.getElementById("picView");
+  if(box) box.hidden=true;
+  const stage=document.getElementById("picStage");
+  if(stage) stage.innerHTML="";
+  picDrag=null;
+}
+function openPicture(src,title){
+  picZoom=1;picX=0;picY=0;
+  const box=document.getElementById("picView");
+  document.getElementById("picTitle").textContent=title||"图片";
+  setPicTools(true);
+  const img=document.createElement("img");
+  img.className="pic-zoom";
+  img.alt="";
+  img.draggable=false;
+  img.src=src;
+  const stage=document.getElementById("picStage");
+  stage.innerHTML="";
+  stage.appendChild(img);
+  box.hidden=false;
+  paintPic();
+}
+function openPicHtml(title,html,tools){
+  picZoom=1;picX=0;picY=0;
+  document.getElementById("picTitle").textContent=title||"附件";
+  setPicTools(!!tools);
+  document.getElementById("picStage").innerHTML=html;
+  document.getElementById("picView").hidden=false;
+  paintPic();
+}
+function assetKind(meta,blob){
+  const name=String((meta&&meta.name)||"").toLowerCase();
+  const mime=String((meta&&meta.mime)||(blob&&blob.type)||"").toLowerCase();
+  if(mime.startsWith("image/")||/\.(png|jpe?g|gif|webp|bmp|svg)$/.test(name)) return "image";
+  if(mime.startsWith("audio/")||/\.(mp3|wav|m4a|ogg|flac|aac)$/.test(name)) return "audio";
+  if(mime.startsWith("video/")||/\.(mp4|webm|mov|mkv|ogv)$/.test(name)) return "video";
+  if(mime==="application/pdf"||name.endsWith(".pdf")) return "pdf";
+  if(name.endsWith(".docx")) return "docx";
+  if(name.endsWith(".xlsx")) return "xlsx";
+  if(name.endsWith(".pptx")) return "pptx";
+  if(mime.startsWith("text/")||/\.(txt|md|csv|json|log|xml)$/.test(name)) return "text";
+  return "";
+}
+function decodeXml(s){
+  return String(s||"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&apos;/g,"'");
+}
+async function zipMap(blob){
+  const bytes=new Uint8Array(await blob.arrayBuffer());
+  const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+  let eocd=-1;
+  for(let i=bytes.length-22;i>=Math.max(0,bytes.length-66000);i--){
+    if(view.getUint32(i,true)!==0x06054b50) continue;
+    const commentLen=view.getUint16(i+20,true);
+    if(i+22+commentLen!==bytes.length) continue;
+    eocd=i;
+    break;
+  }
+  if(eocd<0) throw new Error("zip");
+  const count=view.getUint16(eocd+10,true);
+  let ptr=view.getUint32(eocd+16,true);
+  const files={};
+  for(let n=0;n<count;n++){
+    if(ptr+46>bytes.length||view.getUint32(ptr,true)!==0x02014b50) throw new Error("zip");
+    const method=view.getUint16(ptr+10,true);
+    const compSize=view.getUint32(ptr+20,true);
+    const nameLen=view.getUint16(ptr+28,true);
+    const extraLen=view.getUint16(ptr+30,true);
+    const commentLen=view.getUint16(ptr+32,true);
+    const localOff=view.getUint32(ptr+42,true);
+    const name=new TextDecoder().decode(bytes.subarray(ptr+46,ptr+46+nameLen));
+    const localNameLen=view.getUint16(localOff+26,true);
+    const localExtra=view.getUint16(localOff+28,true);
+    const start=localOff+30+localNameLen+localExtra;
+    let raw=bytes.subarray(start,start+compSize);
+    if(method===8){
+      const stream=new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      raw=new Uint8Array(await new Response(stream).arrayBuffer());
+    }else if(method!==0) throw new Error("zip");
+    files[name]=raw;
+    ptr+=46+nameLen+extraLen+commentLen;
+  }
+  return files;
+}
+function docxPlain(xml){
+  return xml.split(/<\/w:p>/).map(part=>{
+    return [...part.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)].map(m=>decodeXml(m[1])).join("");
+  }).filter(line=>line.trim()).join("\n");
+}
+function xlsxTable(files){
+  const ss=files["xl/sharedStrings.xml"]?new TextDecoder().decode(files["xl/sharedStrings.xml"]):"";
+  const strings=ss?ss.split(/<si\b[^>]*>/).slice(1).map(si=>[...si.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(m=>decodeXml(m[1])).join("")):[];
+  const sheetName=Object.keys(files).find(name=>/^xl\/worksheets\/sheet\d+\.xml$/.test(name));
+  if(!sheetName) return "";
+  const sheet=new TextDecoder().decode(files[sheetName]);
+  const rows=sheet.split(/<row\b[^>]*>/).slice(1).slice(0,80).map(row=>{
+    const cells=[];
+    [...row.matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g)].slice(0,16).forEach(m=>{
+      const col=(m[1].match(/\br="([A-Z]+)/)||["",""])[1];
+      let n=0;
+      for(const ch of col) n=n*26+(ch.charCodeAt(0)-64);
+      const inline=[...m[2].matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(t=>decodeXml(t[1])).join("");
+      const value=(m[2].match(/<v>([^<]*)<\/v>/)||["",""])[1];
+      cells[Math.max(0,n-1)]=/t="s"/.test(m[1])?(strings[Number(value)]||""):(inline||value);
+    });
+    return cells;
+  }).filter(cells=>cells.some(cell=>cell));
+  if(!rows.length) return "";
+  const width=rows.reduce((max,row)=>Math.max(max,row.length),0);
+  return "<table>"+rows.map(row=>"<tr>"+Array.from({length:width},(_,i)=>"<td>"+esc(row[i]||"")+"</td>").join("")+"</tr>").join("")+"</table>";
+}
+function pptxPlain(files){
+  return Object.keys(files).filter(name=>/^ppt\/slides\/slide\d+\.xml$/.test(name)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).map((name,index)=>{
+    const xml=new TextDecoder().decode(files[name]);
+    const lines=[...xml.matchAll(/<a:t[^>]*>([^<]*)<\/a:t>/g)].map(m=>decodeXml(m[1])).filter(Boolean);
+    return lines.length?("第 "+(index+1)+" 页\n"+lines.join("\n")):"";
+  }).filter(Boolean).join("\n\n");
+}
+async function previewAsset(id){
+  if(!assetBytes.has(id)) hydrateAssets(state&&state.assets);
+  const blob=assetBytes.get(id);
+  const meta=(state.assets&&state.assets[id])||{};
+  if(!blob){toast("附件还没读到");return}
+  const name=meta.name||"附件";
+  const url=assetBlobUrl(id);
+  const kind=assetKind(meta,blob);
+  if(kind==="image"){openPicture(url,name);return}
+  if(kind==="audio"||kind==="video"){openPicHtml(name,"<"+kind+" controls src=\""+url+"\"></"+kind+">",false);return}
+  if(kind==="pdf"){openPicHtml(name,'<iframe title="'+esc(name)+'" src="'+url+'"></iframe>',false);return}
+  if(kind==="text"){openPicHtml(name,'<pre class="pic-text">'+esc((await blob.text()).slice(0,200000))+"</pre>",false);return}
+  if(kind==="docx"||kind==="xlsx"||kind==="pptx"){
+    const files=await zipMap(blob);
+    if(kind==="docx"){const text=docxPlain(new TextDecoder().decode(files["word/document.xml"]||new Uint8Array()));if(!text) throw new Error("empty");openPicHtml(name,'<pre class="pic-text">'+esc(text.slice(0,200000))+"</pre>",false);return}
+    if(kind==="xlsx"){const table=xlsxTable(files);if(!table) throw new Error("empty");openPicHtml(name,'<div class="pic-sheet">'+table+"</div>",false);return}
+    const text=pptxPlain(files);
+    if(!text) throw new Error("empty");
+    openPicHtml(name,'<pre class="pic-text">'+esc(text.slice(0,200000))+"</pre>",false);
+    return;
+  }
+  toast("这个格式只能下载后打开");
+}
 function downloadAsset(id){
   if(!assetBytes.has(id)) hydrateAssets(state&&state.assets);
   const blob=assetBytes.get(id);
@@ -3010,6 +3177,10 @@ function handleAction(el){
   else if(act==="copy-link") copyArticleLink(id);
   else if(act==="print-article") window.print();
   else if(act==="download-asset") downloadAsset(id);
+  else if(act==="preview-asset") previewAsset(id).catch(()=>toast("这个附件预览不了，可以下载"));
+  else if(act==="pic-close") closePicture();
+  else if(act==="pic-fit"){picZoom=1;picX=0;picY=0;paintPic()}
+  else if(act==="pic-zoom"){picZoom=Math.min(8,Math.max(0.2,picZoom*((Number(el.dataset.dir)||1)>0?1.25:0.8)));paintPic()}
   else if(act==="restore-ver") restoreVersion(id);
   else if(act==="restore-lib") restoreLibraryHistory(id);
   else if(act==="delete-lib") deleteLibraryHistory(id);
@@ -3057,6 +3228,35 @@ document.body.addEventListener("click",event=>{
   if(!el) return;
   handleAction(el);
 });
+document.body.addEventListener("dblclick",event=>{
+  const img=event.target.closest(".article-content img");
+  if(!img||!img.getAttribute("src")) return;
+  event.preventDefault();
+  openPicture(img.src,img.alt||"图片");
+});
+document.getElementById("picStage").addEventListener("click",event=>{
+  if(event.target.id==="picStage") closePicture();
+});
+document.getElementById("picStage").addEventListener("wheel",event=>{
+  if(document.getElementById("picView").hidden||!event.currentTarget.querySelector("img.pic-zoom")) return;
+  event.preventDefault();
+  picZoom=Math.min(8,Math.max(0.2,picZoom*(event.deltaY<0?1.12:0.89)));
+  paintPic();
+},{passive:false});
+document.getElementById("picStage").addEventListener("pointerdown",event=>{
+  const img=event.target.closest("img.pic-zoom");
+  if(!img) return;
+  picDrag={x:event.clientX,y:event.clientY,px:picX,py:picY};
+  event.currentTarget.setPointerCapture(event.pointerId);
+});
+document.getElementById("picStage").addEventListener("pointermove",event=>{
+  if(!picDrag) return;
+  picX=picDrag.px+event.clientX-picDrag.x;
+  picY=picDrag.py+event.clientY-picDrag.y;
+  paintPic();
+});
+document.getElementById("picStage").addEventListener("pointerup",()=>{picDrag=null});
+document.getElementById("picStage").addEventListener("pointercancel",()=>{picDrag=null});
 document.getElementById("knowledgeTable").addEventListener("change",event=>{
   const box=event.target.closest(".rowcheck");
   if(box) selectArticle(box.dataset.id,box.checked);
@@ -3082,6 +3282,7 @@ document.querySelectorAll(".settings-tab").forEach(btn=>btn.addEventListener("cl
   document.getElementById("set-"+btn.dataset.tab).classList.add("active");
 }));
 document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&document.getElementById("picView")&&!document.getElementById("picView").hidden){event.preventDefault();closePicture();return}
   const commandOpen=document.getElementById("commandBg").classList.contains("show");
   const typing=event.target instanceof Element&&event.target.closest("input,textarea,select");
   if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){
