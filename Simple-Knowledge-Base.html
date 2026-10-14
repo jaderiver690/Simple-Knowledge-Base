@@ -140,14 +140,23 @@ button{cursor:pointer}
 .pic-bar{display:flex;gap:8px;align-items:center;padding:12px 16px;color:#fff}
 .pic-bar strong{margin-right:auto;font-size:14px;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pic-bar button{background:#1c2430;color:#fff;border:1px solid #334155}
-.pic-stage{flex:1;min-height:0;overflow:hidden;display:grid;place-items:center;cursor:grab}
+.pic-stage{flex:1;min-height:0;overflow:auto;display:block;text-align:left}
+.pic-stage:has(img.pic-zoom){display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:grab}
 .pic-stage img.pic-zoom{max-width:min(92vw,1200px);max-height:78vh;transform-origin:center center;user-select:none}
 .pic-stage iframe,.pic-stage video{width:min(1100px,94vw);height:min(78vh,820px);background:#fff;border:0;border-radius:12px}
 .pic-stage audio{width:min(640px,90vw)}
 .pic-text{width:min(980px,94vw);max-height:78vh;overflow:auto;background:#fff;color:#16202a;border-radius:12px;padding:18px;white-space:pre-wrap}
-.pic-sheet{width:min(1100px,94vw);max-height:78vh;overflow:auto;background:#fff;color:#16202a;border-radius:12px;padding:12px}
-.pic-sheet table{border-collapse:collapse}
+.pic-book{width:max-content;max-width:none;min-height:0;display:block;margin:12px}
+.pic-tabs{display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:2;background:#0b1016;padding:10px 4px 12px}
+.pic-tabs button{background:#fff;color:#16202a;border:1px solid #d5dde6;min-height:36px;padding:8px 14px}
+.pic-tabs button.on{background:#5b67f1;color:#fff;border-color:#5b67f1}
+.pic-book .pic-sheet{flex:none;max-height:none;overflow:visible}
+.pic-sheet{width:max-content;max-width:none;max-height:none;overflow:visible;background:#fff;color:#16202a;border-radius:12px;padding:12px 16px 20px}
+.pic-sheet h3{margin:18px 0 8px;font-size:16px}
+.pic-sheet h3:first-child{margin-top:4px}
+.pic-sheet table{border-collapse:collapse;margin:0 0 8px;width:max-content}
 .pic-sheet td{border:1px solid #e4e9ef;padding:4px 8px;font-size:13px;vertical-align:top}
+.pic-sheet .pic-more{color:#718096;font-size:12px;margin:0 0 8px}
 .article-content ul,.article-content ol{padding-left:1.3em}
 .article-content hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .article-content table{border-collapse:collapse;width:100%;margin:12px 0}
@@ -539,7 +548,7 @@ html[data-density="compact"] .article-row{padding:8px}
 <div class="pic-view" id="picView" hidden><div class="pic-bar"><strong id="picTitle">图片</strong><button type="button" data-act="pic-zoom" data-dir="-1">缩小</button><button type="button" data-act="pic-zoom" data-dir="1">放大</button><button type="button" data-act="pic-fit">适合窗口</button><span id="picScale">100%</span><button type="button" data-act="pic-close">关闭</button></div><div class="pic-stage" id="picStage"></div></div>
 <div class="command" id="commandBg" onclick="if(event.target===this)closeCommand()"><div class="command-box"><input class="command-input" id="commandInput" placeholder="搜索" oninput="renderCommands(true)"><div class="commands" id="commands"></div></div></div>
 <div class="toast" id="toast"></div>
-<script type="application/json" id="kb-place">{"id":"inst_mv3nm496_8jo0ol","href":"file:///C:/Users/老铁666/Desktop/知识库/知识库.html","folder":"知识库"}</script>
+<script type="application/json" id="kb-place">{"id":"inst_mv3nm496_8jo0ol","href":"file:///C:/Users/2537375375/Desktop/知识库/知识库.html","folder":"知识库"}</script>
 <script src="存档/现有版本/当前.js"></script>
 <script>
 const pristine=document.documentElement.cloneNode(true);
@@ -2980,37 +2989,142 @@ async function zipMap(blob){
   return files;
 }
 function docxPlain(xml){
-  return xml.split(/<\/w:p>/).map(part=>{
+  return String(xml||"").split(/<\/w:p>/).map(part=>{
     return [...part.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)].map(m=>decodeXml(m[1])).join("");
   }).filter(line=>line.trim()).join("\n");
 }
-function xlsxTable(files){
+function docxAll(files){
+  const text=name=>docxPlain(new TextDecoder().decode(files[name]||new Uint8Array()));
+  const chunks=[];
+  const main=text("word/document.xml");
+  if(main) chunks.push(main);
+  [["word\/header\\d+\\.xml","页眉"],["word\/footer\\d+\\.xml","页脚"],["word\/footnotes\\.xml","脚注"],["word\/endnotes\\.xml","尾注"],["word\/comments\\.xml","批注"]].forEach(([source,label])=>{
+    const re=new RegExp("^"+source+"$");
+    const extra=Object.keys(files).filter(name=>re.test(name)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).map(text).filter(Boolean).join("\n");
+    if(extra) chunks.push(label+"\n"+extra);
+  });
+  return chunks.join("\n\n");
+}
+function xlsxCol(letters){
+  let n=0;
+  for(const ch of letters) n=n*26+(ch.charCodeAt(0)-64);
+  return n-1;
+}
+function xlsxTarget(target){
+  let path=decodeXml(target||"").split("?")[0].replace(/\\/g,"/");
+  if(path.startsWith("/")) path=path.slice(1);
+  path=path.replace(/^(\.\.\/)+/,"").replace(/^\.\//,"");
+  if(!path.startsWith("xl/")) path="xl/"+path;
+  return path;
+}
+function xlsxRel(xml){
+  const rel={};
+  [...String(xml||"").matchAll(/<Relationship\b[^>]*>/g)].forEach(tag=>{
+    const id=(tag[0].match(/\bId="([^"]+)"/)||["",""])[1];
+    const target=(tag[0].match(/\bTarget="([^"]+)"/)||["",""])[1];
+    if(id&&target) rel[id]=target;
+  });
+  return rel;
+}
+function xlsxSheetList(files){
+  const rel=xlsxRel(files["xl/_rels/workbook.xml.rels"]?new TextDecoder().decode(files["xl/_rels/workbook.xml.rels"]):"");
+  const book=files["xl/workbook.xml"]?new TextDecoder().decode(files["xl/workbook.xml"]):"";
+  const sheets=[];
+  [...book.matchAll(/<sheet\b[^>]*>/g)].forEach(tag=>{
+    const name=decodeXml((tag[0].match(/\bname="([^"]*)"/)||["",""])[1])||"工作表";
+    const rid=(tag[0].match(/\br:id="([^"]+)"/)||["",""])[1];
+    const file=xlsxTarget(rel[rid]||"");
+    if(files[file]) sheets.push({name,file});
+  });
+  if(sheets.length) return sheets;
+  return Object.keys(files).filter(name=>/^xl\/worksheets\/sheet\d+\.xml$/.test(name)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).map((file,index)=>({name:"工作表 "+(index+1),file}));
+}
+function xlsxStrings(files){
   const ss=files["xl/sharedStrings.xml"]?new TextDecoder().decode(files["xl/sharedStrings.xml"]):"";
-  const strings=ss?ss.split(/<si\b[^>]*>/).slice(1).map(si=>[...si.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(m=>decodeXml(m[1])).join("")):[];
-  const sheetName=Object.keys(files).find(name=>/^xl\/worksheets\/sheet\d+\.xml$/.test(name));
-  if(!sheetName) return "";
-  const sheet=new TextDecoder().decode(files[sheetName]);
-  const rows=sheet.split(/<row\b[^>]*>/).slice(1).slice(0,80).map(row=>{
-    const cells=[];
-    [...row.matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g)].slice(0,16).forEach(m=>{
-      const col=(m[1].match(/\br="([A-Z]+)/)||["",""])[1];
-      let n=0;
-      for(const ch of col) n=n*26+(ch.charCodeAt(0)-64);
-      const inline=[...m[2].matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(t=>decodeXml(t[1])).join("");
-      const value=(m[2].match(/<v>([^<]*)<\/v>/)||["",""])[1];
-      cells[Math.max(0,n-1)]=/t="s"/.test(m[1])?(strings[Number(value)]||""):(inline||value);
-    });
-    return cells;
-  }).filter(cells=>cells.some(cell=>cell));
-  if(!rows.length) return "";
-  const width=rows.reduce((max,row)=>Math.max(max,row.length),0);
-  return "<table>"+rows.map(row=>"<tr>"+Array.from({length:width},(_,i)=>"<td>"+esc(row[i]||"")+"</td>").join("")+"</tr>").join("")+"</table>";
+  if(!ss) return [];
+  return ss.split(/<si\b[^>]*>/).slice(1).map(si=>{
+    const clean=si.replace(/<rPh\b[\s\S]*?<\/rPh>/g,"");
+    return [...clean.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(m=>decodeXml(m[1])).join("");
+  });
+}
+function xlsxCellValue(attrs,body,strings){
+  const inline=[...String(body||"").matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(t=>decodeXml(t[1])).join("");
+  const value=decodeXml((String(body||"").match(/<v>([^<]*)<\/v>/)||["",""])[1]);
+  const formula=decodeXml((String(body||"").match(/<f[^>]*>([^<]*)<\/f>/)||["",""])[1]);
+  if(/t="s"/.test(attrs)) return strings[Number(value)]||"";
+  if(/t="b"/.test(attrs)) return value==="1"?"TRUE":value==="0"?"FALSE":value;
+  return inline||value||formula;
+}
+function xlsxRows(sheet,strings){
+  const xml=String(sheet||"");
+  const byRow=[];
+  let maxRow=0,maxCol=0;
+  for(const row of xml.matchAll(/<row\b([^>]*)>([\s\S]*?)<\/row>/g)){
+    const r=Number((row[1].match(/\br="(\d+)"/)||["",""])[1])||byRow.length+1;
+    const cells=byRow[r-1]||[];
+    for(const m of row[2].matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)){
+      const letters=(m[1].match(/\br="([A-Z]+)/)||["",""])[1];
+      if(!letters) continue;
+      const index=xlsxCol(letters);
+      if(index<0) continue;
+      cells[index]=xlsxCellValue(m[1],m[2]||"",strings);
+      if(index+1>maxCol) maxCol=index+1;
+    }
+    byRow[r-1]=cells;
+    if(r>maxRow) maxRow=r;
+  }
+  for(const merge of xml.matchAll(/<mergeCell\b[^>]*ref="([A-Z]+)(\d+):([A-Z]+)(\d+)"/g)){
+    const c1=xlsxCol(merge[1]),r1=Number(merge[2])-1,c2=xlsxCol(merge[3]),r2=Number(merge[4])-1;
+    const val=(byRow[r1]||[])[c1]||"";
+    for(let rr=r1;rr<=r2;rr++){
+      if(!byRow[rr]) byRow[rr]=[];
+      for(let cc=c1;cc<=c2;cc++) if(!byRow[rr][cc]) byRow[rr][cc]=val;
+      if(c2+1>maxCol) maxCol=c2+1;
+    }
+    if(r2+1>maxRow) maxRow=r2+1;
+  }
+  const rows=[];
+  for(let i=0;i<maxRow;i++){
+    const cells=byRow[i]||[];
+    cells.length=Math.max(cells.length,maxCol);
+    rows.push(Array.from(cells,cell=>cell||""));
+  }
+  while(rows.length&&rows[rows.length-1].every(cell=>!String(cell||"").trim())) rows.pop();
+  return {rows,clipped:false};
+}
+function xlsxTable(files){
+  const strings=xlsxStrings(files);
+  const sheets=xlsxSheetList(files).map(sheet=>{
+    const parsed=xlsxRows(new TextDecoder().decode(files[sheet.file]||new Uint8Array()),strings);
+    const width=parsed.rows.reduce((max,row)=>Math.max(max,row.length),0);
+    const table=parsed.rows.length?"<table>"+parsed.rows.map(row=>"<tr>"+Array.from({length:width},(_,i)=>"<td>"+esc(row[i]||"")+"</td>").join("")+"</tr>").join("")+"</table>":"<p class=\"pic-more\">这张表是空的。</p>";
+    const note="";
+    return {name:sheet.name,html:"<h3>"+esc(sheet.name)+"</h3>"+table+note};
+  });
+  if(!sheets.length) return "";
+  const tabs=sheets.length>1?'<div class="pic-tabs">'+sheets.map((sheet,index)=>'<button type="button" data-act="xlsx-tab" data-sheet="'+index+'"'+(index?'':' class="on"')+'>'+esc(sheet.name)+"</button>").join("")+"</div>":"";
+  return '<div class="pic-book">'+tabs+'<div class="pic-sheet">'+sheets.map((sheet,index)=>'<section class="xlsx-sheet" data-sheet="'+index+'"'+(index?" hidden":"")+">"+sheet.html+"</section>").join("")+"</div></div>";
 }
 function pptxPlain(files){
-  return Object.keys(files).filter(name=>/^ppt\/slides\/slide\d+\.xml$/.test(name)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).map((name,index)=>{
+  const rel=xlsxRel(files["ppt/_rels/presentation.xml.rels"]?new TextDecoder().decode(files["ppt/_rels/presentation.xml.rels"]):"");
+  const pres=files["ppt/presentation.xml"]?new TextDecoder().decode(files["ppt/presentation.xml"]):"";
+  let names=[];
+  [...pres.matchAll(/<p:sldId\b[^>]*>/g)].forEach(tag=>{
+    const rid=(tag[0].match(/\br:id="([^"]+)"/)||["",""])[1];
+    let file=decodeXml(rel[rid]||"").split("?")[0].replace(/\\/g,"/");
+    if(file.startsWith("/")) file=file.slice(1);
+    file=file.replace(/^(\.\.\/)+/,"").replace(/^\.\//,"");
+    if(file&&!file.startsWith("ppt/")) file="ppt/"+file;
+    if(files[file]) names.push(file);
+  });
+  if(!names.length) names=Object.keys(files).filter(name=>/^ppt\/slides\/slide\d+\.xml$/.test(name)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  return names.map((name,index)=>{
     const xml=new TextDecoder().decode(files[name]);
     const lines=[...xml.matchAll(/<a:t[^>]*>([^<]*)<\/a:t>/g)].map(m=>decodeXml(m[1])).filter(Boolean);
-    return lines.length?("第 "+(index+1)+" 页\n"+lines.join("\n")):"";
+    const noteFile=name.replace("slides/slide","notesSlides/notesSlide");
+    const notes=files[noteFile]?[...new TextDecoder().decode(files[noteFile]).matchAll(/<a:t[^>]*>([^<]*)<\/a:t>/g)].map(m=>decodeXml(m[1])).filter(line=>line&&!lines.includes(line)):[];
+    const body=lines.join("\n")+(notes.length?"\n备注\n"+notes.join("\n"):"");
+    return body?("第 "+(index+1)+" 页\n"+body):"";
   }).filter(Boolean).join("\n\n");
 }
 async function previewAsset(id){
@@ -3027,7 +3141,7 @@ async function previewAsset(id){
   if(kind==="text"){openPicHtml(name,'<pre class="pic-text">'+esc((await blob.text()).slice(0,200000))+"</pre>",false);return}
   if(kind==="docx"||kind==="xlsx"||kind==="pptx"){
     const files=await zipMap(blob);
-    if(kind==="docx"){const text=docxPlain(new TextDecoder().decode(files["word/document.xml"]||new Uint8Array()));if(!text) throw new Error("empty");openPicHtml(name,'<pre class="pic-text">'+esc(text.slice(0,200000))+"</pre>",false);return}
+    if(kind==="docx"){const text=docxAll(files);if(!text) throw new Error("empty");openPicHtml(name,'<pre class="pic-text">'+esc(text.slice(0,200000))+"</pre>",false);return}
     if(kind==="xlsx"){const table=xlsxTable(files);if(!table) throw new Error("empty");openPicHtml(name,'<div class="pic-sheet">'+table+"</div>",false);return}
     const text=pptxPlain(files);
     if(!text) throw new Error("empty");
@@ -3181,6 +3295,14 @@ function handleAction(el){
   else if(act==="pic-close") closePicture();
   else if(act==="pic-fit"){picZoom=1;picX=0;picY=0;paintPic()}
   else if(act==="pic-zoom"){picZoom=Math.min(8,Math.max(0.2,picZoom*((Number(el.dataset.dir)||1)>0?1.25:0.8)));paintPic()}
+  else if(act==="xlsx-tab"){
+    const n=String(el.dataset.sheet??"");
+    if(!n) return;
+    document.querySelectorAll("#picStage .xlsx-sheet").forEach(sheet=>{sheet.hidden=String(sheet.dataset.sheet)!==n});
+    document.querySelectorAll("#picStage [data-act='xlsx-tab']").forEach(btn=>btn.classList.toggle("on",String(btn.dataset.sheet)===n));
+    const stage=document.getElementById("picStage");
+    if(stage){stage.scrollTop=0;stage.scrollLeft=0}
+  }
   else if(act==="restore-ver") restoreVersion(id);
   else if(act==="restore-lib") restoreLibraryHistory(id);
   else if(act==="delete-lib") deleteLibraryHistory(id);
@@ -3234,7 +3356,9 @@ document.body.addEventListener("dblclick",event=>{
   event.preventDefault();
   openPicture(img.src,img.alt||"图片");
 });
+let picDownInBook=false;
 document.getElementById("picStage").addEventListener("click",event=>{
+  if(picDownInBook||event.target.closest(".pic-book")) return;
   if(event.target.id==="picStage") closePicture();
 });
 document.getElementById("picStage").addEventListener("wheel",event=>{
@@ -3244,6 +3368,7 @@ document.getElementById("picStage").addEventListener("wheel",event=>{
   paintPic();
 },{passive:false});
 document.getElementById("picStage").addEventListener("pointerdown",event=>{
+  picDownInBook=!!event.target.closest(".pic-book,.pic-bar");
   const img=event.target.closest("img.pic-zoom");
   if(!img) return;
   picDrag={x:event.clientX,y:event.clientY,px:picX,py:picY};
